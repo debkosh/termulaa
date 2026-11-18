@@ -35,6 +35,8 @@ termulaa
 curl -fsSL https://raw.githubusercontent.com/sudiptadeb/termulaa/main/install.sh | bash
 ```
 
+Or with npm: `npx termulaa`, which installs the binary to the same place and runs it.
+
 Detects OS (linux/darwin) and arch (amd64/arm64), installs to
 `~/.local/bin/termulaa`.
 

@@ -1,0 +1,21 @@
+{
+  "version": "0.6.1",
+  "assets": {
+    "darwin/amd64": {
+      "url": "https://github.com/sudiptadeb/termulaa/releases/download/v0.6.1/termulaa-darwin-amd64-v0.6.1",
+      "sha256": "6708df4ed173384c063cb0e0250845bae1505dc7a5355200498dbc8ff0dde9a4"
+    },
+    "darwin/arm64": {
+      "url": "https://github.com/sudiptadeb/termulaa/releases/download/v0.6.1/termulaa-darwin-arm64-v0.6.1",
+      "sha256": "c928c74ea2044d3cedcde9a998f7ee648c912cc6a9faa102f384e4c4d5a37042"
+    },
+    "linux/amd64": {
+      "url": "https://github.com/sudiptadeb/termulaa/releases/download/v0.6.1/termulaa-linux-amd64-v0.6.1",
+      "sha256": "bfa957f08d19c31e26d5b5fc923adcc4ebe97614063c968904dbc4ce60ac57d0"
+    },
+    "linux/arm64": {
+      "url": "https://github.com/sudiptadeb/termulaa/releases/download/v0.6.1/termulaa-linux-arm64-v0.6.1",
+      "sha256": "c7f3fdfc2d790d067701c243d79bcefb4cacd932615048a3b74c6e62b33dfca6"
+    }
+  }
+}

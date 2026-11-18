@@ -1,0 +1,31 @@
+{
+  "name": "termulaa",
+  "version": "0.6.1",
+  "description": "Terminal + coding agents in a browser tab, next to the webapp you're building. Persistent sessions, tabs, pane splits. Loopback-only Go binary.",
+  "bin": {
+    "termulaa": "run.js"
+  },
+  "files": [
+    "run.js",
+    "assets.json"
+  ],
+  "os": [
+    "darwin",
+    "linux"
+  ],
+  "cpu": [
+    "x64",
+    "arm64"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT",
+  "author": "Sudipta Deb",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sudiptadeb/termulaa.git",
+    "directory": "npm"
+  },
+  "homepage": "https://github.com/sudiptadeb/termulaa"
+}
