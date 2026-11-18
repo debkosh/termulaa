@@ -20,6 +20,9 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    outputs:
+      release: ${{ steps.rel.outputs.release }}
+      tag: ${{ steps.rel.outputs.tag }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -124,3 +127,19 @@ jobs:
             --title "$TAG" \
             --generate-notes \
             release/*
+
+  # npm: the same release as an npm package, published as this workflow's trusted publisher
+  # (npmjs.com > termulaa > Settings), so no token is stored.
+  npm:
+    needs: release
+    if: needs.release.outputs.release == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm/publish.sh "${{ needs.release.outputs.tag }}"

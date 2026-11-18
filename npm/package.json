@@ -1,6 +1,6 @@
 {
   "name": "termulaa",
-  "version": "0.6.1",
+  "version": "0.0.0",
   "description": "Terminal + coding agents in a browser tab, next to the webapp you're building. Persistent sessions, tabs, pane splits. Loopback-only Go binary.",
   "bin": {
     "termulaa": "run.js"
