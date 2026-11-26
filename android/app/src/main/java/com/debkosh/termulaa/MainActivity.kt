@@ -8,6 +8,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.debkosh.termulaa.ui.TermulaaNav
+import io.github.sudiptadeb.amarit.Amarit
 import com.debkosh.termulaa.ui.TermulaaTheme
 import kotlinx.coroutines.runBlocking
 
@@ -22,6 +23,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val graph = AppGraph.get(this)
+        try {
+            Amarit.start(this) // update prompts, configured by android/amarit.json
+        } catch (e: Exception) { // an updater must never take the app down
+            android.util.Log.w("termulaa", "update check not started", e)
+        }
 
         pendingMachineId = extractMachineId(intent)
         pendingPairUri = extractPairUri(intent)

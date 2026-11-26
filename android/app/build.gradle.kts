@@ -5,6 +5,13 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
 }
 
+// One version for the whole repo: the app ships in every termulaa release, and the
+// amarit manifest names it by the VERSION file. versionCode is amarit's formula,
+// major*1000000 + minor*1000 + patch, so every release installs over the last.
+val termulaaVersion = rootProject.file("../VERSION").readText().trim()
+val termulaaVersionCode = termulaaVersion.split(".").map { it.toInt() }
+    .let { (major, minor, patch) -> major * 1_000_000 + minor * 1_000 + patch }
+
 android {
     namespace = "com.debkosh.termulaa"
     compileSdk = 35
@@ -13,8 +20,8 @@ android {
         applicationId = "com.debkosh.termulaa"
         minSdk = 26
         targetSdk = 35
-        versionCode = 3
-        versionName = "1.1.1"
+        versionCode = termulaaVersionCode
+        versionName = termulaaVersion
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -54,6 +61,14 @@ android {
     }
 }
 
+// android/amarit.json, carried into the APK so the updater hardcodes nothing.
+val amaritProjectFile = tasks.register<Copy>("amaritProjectFile") {
+    from(rootProject.file("amarit.json"))
+    into(layout.buildDirectory.dir("generated/amarit/assets"))
+}
+android.sourceSets.getByName("main").assets.srcDir(layout.buildDirectory.dir("generated/amarit/assets"))
+tasks.named("preBuild") { dependsOn(amaritProjectFile) }
+
 dependencies {
     val composeBom = platform("androidx.compose:compose-bom:2025.04.01")
     implementation(composeBom)
@@ -74,6 +89,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.1")
     implementation("com.github.android-password-store:kage:0.2.0") // age decryption of phone notifications
+    implementation("com.github.sudiptadeb:amarit:v0.6.0") // update prompts from releases-android.json
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")

@@ -115,6 +115,7 @@ fun SettingsScreen(
             SectionLabel("About")
             Text("termulaa $versionName", color = Palette.Text,
                 fontFamily = FontFamily.Monospace, style = MaterialTheme.typography.bodyMedium)
+            UpdateButton()
             TextButton(onClick = onOpenProject) {
                 Text("github.com/debkosh/termulaa", color = Palette.Green,
                     fontFamily = FontFamily.Monospace)

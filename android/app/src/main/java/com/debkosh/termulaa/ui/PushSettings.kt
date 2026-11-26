@@ -1,6 +1,7 @@
 package com.debkosh.termulaa.ui
 
 import android.Manifest
+import android.app.Activity
 import android.app.AlarmManager
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -44,6 +45,7 @@ import com.debkosh.termulaa.push.PushMessage
 import com.debkosh.termulaa.push.PushService
 import com.debkosh.termulaa.push.PushWorker
 import com.debkosh.termulaa.push.Wire
+import io.github.sudiptadeb.amarit.Amarit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -154,6 +156,16 @@ private fun PushSettingsBody(refresh: () -> Unit, askNotifications: () -> Unit) 
                 Uri.parse("package:${context.packageName}")))
         }) { Text("Allow reconnecting on time (alarms)", color = Palette.Green) }
     }
+}
+
+/** "Check for updates", through the amarit library. */
+@Composable
+fun UpdateButton() {
+    val context = LocalContext.current
+    TextButton(onClick = {
+        val activity = context as? Activity ?: return@TextButton
+        Amarit.current?.checkNow(activity)
+    }) { Text("Check for updates", color = Palette.Green) }
 }
 
 @Composable

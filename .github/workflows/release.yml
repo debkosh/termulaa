@@ -75,6 +75,7 @@ jobs:
       # with the committed sideload keystore (install-continuity only — see
       # android/README.md), and uploaded under both a versioned name and the
       # stable "termulaa.apk" that releases/latest/download links point at.
+      # Installed apps update themselves from releases-android.json (amarit).
       - uses: actions/setup-java@v4
         if: steps.rel.outputs.release == 'true'
         with:
@@ -112,7 +113,14 @@ jobs:
         run: |
           (cd src && go run github.com/debkosh/amarit/cmd/amarit release \
             -config ../amarit.json -version "$TAG" -dist ../release -out ../release/releases.json)
-          cat release/releases.json
+          # The phone app's own manifest (android/amarit.json), read by the amarit
+          # Android library. versionCode is the formula app/build.gradle.kts uses.
+          IFS=. read -r major minor patch <<< "${TAG#v}"
+          code=$((major * 1000000 + minor * 1000 + patch))
+          (cd src && go run github.com/sudiptadeb/amarit/cmd/amarit@v0.6.0 release \
+            -config ../android/amarit.json -version "$TAG" -version-code "$code" \
+            -dist ../release -out ../release/releases-android.json)
+          cat release/releases.json release/releases-android.json
           ls -la release/
 
       - name: Create release and upload binaries

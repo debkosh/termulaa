@@ -24,6 +24,8 @@ Connect → Machines → Terminal.)*
   spoken into earphones, encrypted to a key only the phone holds and carried
   by ntfy.sh. Turn it on in Settings > Session notifications. Design and
   tests: [docs/notify.md](../docs/notify.md).
+- **Updates itself** — checks the latest release's `releases-android.json`
+  (amarit) and offers each new version; Settings > About > Check for updates.
 - **Terminal** — the full termulaa web UI (tabs, split panes, key bar) in a
   locked-down WebView sharing the memd session cookie. The app adds nothing
   inside the page.
