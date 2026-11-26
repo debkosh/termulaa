@@ -36,7 +36,7 @@ class Inbox(
         val wanted = when (m.level) {
             "decision" -> store.speakDecision
             "blocker" -> store.speakBlocker
-            else -> false
+            else -> store.speakInfo
         }
         if (fresh && wanted) speak(m)
         return "shown"

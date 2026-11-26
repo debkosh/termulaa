@@ -37,6 +37,11 @@ class PushStore(private val s: SecretStore) {
         get() = s.get(K_SPEAK_BLOCKER) != "0"
         set(v) = s.put(K_SPEAK_BLOCKER, if (v) null else "0")
 
+    /** Finished updates are only shown unless this is on. */
+    var speakInfo: Boolean
+        get() = s.get(K_SPEAK_INFO) == "1"
+        set(v) = s.put(K_SPEAK_INFO, if (v) "1" else null)
+
     /** The text-to-speech voice's name; null is the engine's default. */
     var voice: String?
         get() = s.get(K_VOICE)
@@ -103,6 +108,7 @@ class PushStore(private val s: SecretStore) {
         private const val K_LAST_ID = "last_id"
         private const val K_RECENT = "recent_ids"
         private const val K_VOICE = "voice"
+        private const val K_SPEAK_INFO = "speak_info"
         private const val K_RATE = "speech_rate"
         private const val K_VOLUME = "speech_volume"
         private const val K_PAUSE = "pause_music"

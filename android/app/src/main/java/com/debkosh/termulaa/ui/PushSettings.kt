@@ -140,6 +140,9 @@ private fun PushSettingsBody(refresh: () -> Unit, askNotifications: () -> Unit) 
     }
     testResult?.let { Text(it, color = Palette.Dim, style = MaterialTheme.typography.bodySmall) }
 
+    ToggleRow("Speak finished updates", "Off: they are only shown", store.speakInfo) {
+        store.speakInfo = it; refresh()
+    }
     ToggleRow("Speak decisions", "Only into earphones, never in Do Not Disturb", store.speakDecision) {
         store.speakDecision = it; refresh()
     }

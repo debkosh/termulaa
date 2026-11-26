@@ -75,7 +75,7 @@ class PushNotifier(private val context: Context, private val mutedUntil: () -> L
             .setPriority(if (m.level == "info") NotificationCompat.PRIORITY_LOW else NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(tapIntent(m))
             .setAutoCancel(true)
-            .apply { if (m.level != "info") addAction(0, "Stop voice", action(PushActionReceiver.STOP)) }
+            .addAction(0, "Stop voice", action(PushActionReceiver.STOP))
             .setWhen(System.currentTimeMillis())
             .setShowWhen(true)
             .build()
