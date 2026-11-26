@@ -7,6 +7,7 @@ import com.debkosh.termulaa.net.EncryptedSecretStore
 import com.debkosh.termulaa.net.MemdClient
 import com.debkosh.termulaa.net.MemdCookieJar
 import com.debkosh.termulaa.notify.AndroidNotifier
+import com.debkosh.termulaa.push.History
 import com.debkosh.termulaa.push.Inbox
 import com.debkosh.termulaa.push.PushNotifier
 import com.debkosh.termulaa.push.PushStore
@@ -109,6 +110,7 @@ class AppGraph private constructor(private val context: Context) {
     val pushStore by lazy { PushStore(context) }
     val pushNotifier by lazy { PushNotifier(context) { pushStore.mutedUntil } }
     val speaker by lazy { Speaker(context, pushStore) }
+    val pushHistory by lazy { History(java.io.File(context.noBackupFilesDir, "notifications.json")) }
     val pushInbox by lazy {
         Inbox(
             store = pushStore,
@@ -123,6 +125,7 @@ class AppGraph private constructor(private val context: Context) {
                     }
                 }
             },
+            record = { pushHistory.add(it) },
         )
     }
 

@@ -24,10 +24,11 @@ class InboxTest {
         val shown = mutableListOf<PushMessage>()
         val cancelled = mutableListOf<String>()
         val spoken = mutableListOf<PushMessage>()
+        val recorded = mutableListOf<HistoryEntry>()
     }
 
     private fun inbox(store: PushStore, rec: Rec, now: Long = 1_000) =
-        Inbox(store, { rec.shown += it }, { rec.cancelled += it }, { rec.spoken += it }, now = { now })
+        Inbox(store, { rec.shown += it }, { rec.cancelled += it }, { rec.spoken += it }, { rec.recorded += it }, now = { now })
 
     private fun event(id: String, message: String, time: Long = 1_000) =
         """{"id":"$id","time":$time,"event":"message","topic":"tmtest","message":"$message"}"""
@@ -45,6 +46,27 @@ class InboxTest {
         assertEquals("project-b-release", m.key)
         assertEquals(1, rec.spoken.size)
         assertEquals("a1", s.lastId)
+    }
+
+    @Test fun shownMessagesAreKeptInFull() {
+        val rec = Rec()
+        inbox(store(), rec).handle(event("a1", goMessage))
+        val e = rec.recorded.single()
+        assertEquals("a1", e.id)
+        assertEquals("decision", e.level)
+        assertEquals("tester passed — all 42", e.body)
+        assertEquals(1_000L, e.at)
+    }
+
+    @Test fun historyKeepsNewestFirstAndSurvivesARestart() {
+        val f = java.io.File.createTempFile("history", ".json")
+        val h = History(f)
+        h.add(HistoryEntry("1", 1, "info", "a", "first"))
+        h.add(HistoryEntry("2", 2, "blocker", "b", "second"))
+        h.add(HistoryEntry("2", 2, "blocker", "b", "second"))
+        assertEquals(listOf("2", "1"), History(f).entries.value.map { it.id })
+        h.clear()
+        assertTrue(History(f).entries.value.isEmpty())
     }
 
     @Test fun cancelRemovesByKey() {

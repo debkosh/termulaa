@@ -10,6 +10,7 @@ class Inbox(
     private val show: (PushMessage) -> Unit,
     private val cancel: (String) -> Unit,
     private val speak: (PushMessage) -> Unit,
+    private val record: (HistoryEntry) -> Unit = {},
     private val now: () -> Long = { System.currentTimeMillis() / 1000 },
 ) {
 
@@ -31,6 +32,8 @@ class Inbox(
         }
         if (m.level !in LEVELS || m.title.isNullOrBlank()) return "dropped: no level or title"
         show(m)
+        record(HistoryEntry(id = ev.id, at = if (ev.time > 0) ev.time else now(), level = m.level!!,
+            from = m.from ?: "", title = m.title!!, body = m.body ?: "", link = m.link ?: ""))
         // A message replayed after hours offline is shown, never spoken.
         val fresh = ev.time == 0L || now() - ev.time <= FRESH_SECONDS
         val wanted = when (m.level) {

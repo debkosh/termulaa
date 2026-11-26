@@ -59,3 +59,4 @@
 # `termulaa notify` (src/cmd/termulaa/notify.go) and ntfy; keep them whole.
 -keep,includedescriptorclasses class com.debkosh.termulaa.push.PushMessage { *; }
 -keep,includedescriptorclasses class com.debkosh.termulaa.push.NtfyEvent { *; }
+-keep,includedescriptorclasses class com.debkosh.termulaa.push.HistoryEntry { *; }

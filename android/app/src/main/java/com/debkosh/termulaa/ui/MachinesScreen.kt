@@ -5,6 +5,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -85,8 +88,11 @@ fun MachinesScreen(
     onSignOut: () -> Unit = {},
     onGoConnect: () -> Unit = {},
     onOpenDashboard: () -> Unit = {},
+    /** The Notifications tab's content; null shows machines only. */
+    notifications: (@Composable () -> Unit)? = null,
 ) {
     var menuOpen by remember { mutableStateOf(false) }
+    var tab by rememberSaveable { mutableStateOf(if (notifications != null) 0 else 1) }
 
     Scaffold(
         containerColor = Palette.Bg,
@@ -125,10 +131,22 @@ fun MachinesScreen(
             )
         },
     ) { padding ->
+      Column(Modifier.padding(padding).fillMaxSize()) {
+        if (notifications != null) {
+            TabRow(selectedTabIndex = tab, containerColor = Palette.Bg, contentColor = Palette.Green) {
+                Tab(selected = tab == 0, onClick = { tab = 0 },
+                    text = { Text("Notifications", color = if (tab == 0) Palette.Text else Palette.Dim) })
+                Tab(selected = tab == 1, onClick = { tab = 1 },
+                    text = { Text("Machines", color = if (tab == 1) Palette.Text else Palette.Dim) })
+            }
+        }
+        if (notifications != null && tab == 0) {
+            notifications()
+        } else
         PullToRefreshBox(
             isRefreshing = state.refreshing,
             onRefresh = onRefresh,
-            modifier = Modifier.padding(padding).fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
         ) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -154,6 +172,7 @@ fun MachinesScreen(
                 }
             }
         }
+      }
     }
 }
 

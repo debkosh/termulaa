@@ -153,6 +153,7 @@ fun TermulaaNav(
                     val base = graph.currentBase() ?: return@MachinesScreen
                     openUrl(context, Urls.join(base, "/#/termulaa"))
                 },
+                notifications = { NotificationsList(state.nowMillis) },
             )
         }
 
@@ -303,7 +304,7 @@ private fun signOut(graph: AppGraph, nav: NavHostController, context: android.co
     nav.navigate(Routes.CONNECT) { popUpTo(0) { inclusive = true } }
 }
 
-private fun openUrl(context: android.content.Context, url: String) {
+internal fun openUrl(context: android.content.Context, url: String) {
     try {
         context.startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
     } catch (_: Exception) {
