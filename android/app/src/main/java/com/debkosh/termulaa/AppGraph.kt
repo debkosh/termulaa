@@ -117,13 +117,14 @@ class AppGraph private constructor(private val context: Context) {
             show = pushNotifier::show,
             cancel = pushNotifier::cancel,
             speak = { m ->
-                val channel = pushNotifier.channelFor(m.level ?: "")
-                if (channel != null && pushNotifier.channelOn(channel) && speaker.quietReason() == null) {
-                    // Heard in full: the notification has done its job.
-                    speaker.say("${m.from ?: "termulaa"}: ${m.title}") {
-                        pushNotifier.cancel(m.key ?: m.from ?: "termulaa")
-                    }
+                // Heard in full: the notification has done its job.
+                speaker.say("${m.from ?: "termulaa"}: ${m.title}") {
+                    pushNotifier.cancel(m.key ?: m.from ?: "termulaa")
                 }
+            },
+            canSpeak = { m ->
+                val channel = pushNotifier.channelFor(m.level ?: "")
+                channel != null && pushNotifier.channelOn(channel) && speaker.quietReason() == null
             },
             record = { pushHistory.add(it) },
         )

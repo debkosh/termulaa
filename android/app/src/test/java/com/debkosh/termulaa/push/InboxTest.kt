@@ -25,10 +25,12 @@ class InboxTest {
         val cancelled = mutableListOf<String>()
         val spoken = mutableListOf<PushMessage>()
         val recorded = mutableListOf<HistoryEntry>()
+        val silent = mutableListOf<Boolean>()
     }
 
-    private fun inbox(store: PushStore, rec: Rec, now: Long = 1_000) =
-        Inbox(store, { rec.shown += it }, { rec.cancelled += it }, { rec.spoken += it }, { rec.recorded += it }, now = { now })
+    private fun inbox(store: PushStore, rec: Rec, now: Long = 1_000, canSpeak: Boolean = true) =
+        Inbox(store, { m, quiet -> rec.shown += m; rec.silent += quiet }, { rec.cancelled += it },
+            { rec.spoken += it }, canSpeak = { canSpeak }, record = { rec.recorded += it }, now = { now })
 
     private fun event(id: String, message: String, time: Long = 1_000) =
         """{"id":"$id","time":$time,"event":"message","topic":"tmtest","message":"$message"}"""
@@ -105,6 +107,16 @@ class InboxTest {
         inbox(store(), rec, now = 1_000 + Inbox.FRESH_SECONDS + 1).handle(event("a1", goMessage))
         assertEquals(1, rec.shown.size)
         assertTrue(rec.spoken.isEmpty())
+    }
+
+    @Test fun aSpokenNotificationMakesNoSoundOfItsOwn() {
+        val rec = Rec()
+        inbox(store(), rec).handle(event("a1", goMessage))
+        assertEquals(listOf(true), rec.silent)
+        val rec2 = Rec()
+        inbox(store(), rec2, canSpeak = false).handle(event("a2", goMessage))
+        assertEquals(listOf(false), rec2.silent)
+        assertTrue(rec2.spoken.isEmpty())
     }
 
     @Test fun speechFollowsTheSwitch() {

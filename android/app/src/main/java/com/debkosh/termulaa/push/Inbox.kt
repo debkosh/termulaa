@@ -7,9 +7,12 @@ package com.debkosh.termulaa.push
  */
 class Inbox(
     private val store: PushStore,
-    private val show: (PushMessage) -> Unit,
+    /** Posts the notification; silent when the voice will say it, so there is no ping. */
+    private val show: (PushMessage, Boolean) -> Unit,
     private val cancel: (String) -> Unit,
     private val speak: (PushMessage) -> Unit,
+    /** Whether the voice may speak now (earphones, Do Not Disturb, mute, channel on). */
+    private val canSpeak: (PushMessage) -> Boolean = { true },
     private val record: (HistoryEntry) -> Unit = {},
     private val now: () -> Long = { System.currentTimeMillis() / 1000 },
 ) {
@@ -31,9 +34,6 @@ class Inbox(
             return "cancelled"
         }
         if (m.level !in LEVELS || m.title.isNullOrBlank()) return "dropped: no level or title"
-        show(m)
-        record(HistoryEntry(id = ev.id, at = if (ev.time > 0) ev.time else now(), level = m.level!!,
-            from = m.from ?: "", title = m.title!!, body = m.body ?: "", link = m.link ?: ""))
         // A message replayed after hours offline is shown, never spoken.
         val fresh = ev.time == 0L || now() - ev.time <= FRESH_SECONDS
         val wanted = when (m.level) {
@@ -41,7 +41,11 @@ class Inbox(
             "blocker" -> store.speakBlocker
             else -> store.speakInfo
         }
-        if (fresh && wanted) speak(m)
+        val voiced = fresh && wanted && canSpeak(m)
+        show(m, voiced)
+        record(HistoryEntry(id = ev.id, at = if (ev.time > 0) ev.time else now(), level = m.level!!,
+            from = m.from ?: "", title = m.title!!, body = m.body ?: "", link = m.link ?: ""))
+        if (voiced) speak(m)
         return "shown"
     }
 

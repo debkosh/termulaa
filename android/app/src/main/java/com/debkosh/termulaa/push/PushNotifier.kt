@@ -60,7 +60,7 @@ class PushNotifier(private val context: Context, private val mutedUntil: () -> L
         return c.importance != NotificationManager.IMPORTANCE_NONE
     }
 
-    fun show(m: PushMessage) {
+    fun show(m: PushMessage, silent: Boolean = false) {
         val channel = channelFor(m.level ?: return) ?: return
         if (!canPost()) return
         val title = m.title ?: return
@@ -75,6 +75,7 @@ class PushNotifier(private val context: Context, private val mutedUntil: () -> L
             .setPriority(if (m.level == "info") NotificationCompat.PRIORITY_LOW else NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(tapIntent(m))
             .setAutoCancel(true)
+            .setSilent(silent)
             .addAction(0, "Stop voice", action(PushActionReceiver.STOP))
             .setWhen(System.currentTimeMillis())
             .setShowWhen(true)
