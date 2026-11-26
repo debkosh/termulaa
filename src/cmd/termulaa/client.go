@@ -1,6 +1,6 @@
 package main
 
-// The terminal client: `termulaa pair|machines|shell|exec|help`. It talks
+// The terminal client: `termulaa pair|machines|shell|exec|notify|help`. It talks
 // to a rendezvous the way the phone app does and never starts the server,
 // the agent, or amarit; main dispatches here before any of those.
 
@@ -34,7 +34,7 @@ const (
 	execDefaultRows = 30
 )
 
-var clientCommands = map[string]bool{"pair": true, "machines": true, "shell": true, "exec": true, "help": true}
+var clientCommands = map[string]bool{"pair": true, "machines": true, "shell": true, "exec": true, "notify": true, "help": true}
 
 // isClientCommand reports whether argv[1] selects the client.
 func isClientCommand(arg string) bool { return clientCommands[arg] }
@@ -52,6 +52,8 @@ func runClient(args []string, stdout, stderr io.Writer) int {
 		return runExec(args[1:], stdout, stderr)
 	case "shell":
 		return runShell(args[1:], stdout, stderr)
+	case "notify":
+		return runNotify(args[1:], stdout, stderr)
 	}
 	return exitUsage
 }

@@ -54,12 +54,14 @@ Full threat model in [SECURITY.md](SECURITY.md). Short version:
 ## Design philosophy
 
 **"Simple is Hard, Easy is Easy"** — small surface, minimal deps, no
-frameworks. Four Go deps: `creack/pty`, `gorilla/websocket`,
+frameworks. Five Go deps: `creack/pty`, `gorilla/websocket`,
 `xtaci/smux` (justified third: multiplexes all `-rc` viewer connections
 over a small pool of outbound tunnels; hand-rolled stream framing would
 be riskier) and `debkosh/amarit` (self-update from the release
 manifest and keep-alive; `amarit.json` at the repo root is its only
-configuration, stamped in by `build/build.sh`). Frontend is vendored — no npm, no bundler, no build step.
+configuration, stamped in by `build/build.sh`) and `filippo.io/age`
+(encrypts `termulaa notify` messages to the phone app's key; see
+`docs/notify.md`). Frontend is vendored — no npm, no bundler, no build step.
 The terminal emulator in `src/internal/vterm` is written in-repo for the
 same reason: it adds no dependency, and its fidelity is checked against
 the shipped xterm.js bundle rather than assumed.
@@ -102,7 +104,7 @@ A tab created with `{"command": "..."}` runs that one command
 (`shell -lc`) instead of a shell and is finished when it exits; it is
 never revived. The non-browser side of all this is specified in
 `docs/terminal-protocol.md`; the client that speaks it is
-`src/internal/termclient` plus the `pair|machines|shell|exec|help`
+`src/internal/termclient` plus the `pair|machines|shell|exec|notify|help`
 subcommands in `src/cmd/termulaa/client.go`. Those subcommands are
 dispatched before `amarit.Start` and never start the server or agent.
 

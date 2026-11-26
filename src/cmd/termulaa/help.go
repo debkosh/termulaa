@@ -21,6 +21,7 @@ Client (reach a machine running the agent, from any terminal or script):
   termulaa machines [--json]           list the machines connected right now
   termulaa shell <machine>             interactive terminal on a machine
   termulaa exec <machine> -- <cmd>     run a command there, stream its output, exit with its code
+  termulaa notify <level> "<title>"    send a notification to the phone app (end to end encrypted)
   termulaa help <command>              the full guide for one command
   termulaa help agents                 driving termulaa from an automation agent (no TTY)
 
@@ -46,6 +47,34 @@ Exit codes:
   2    bad arguments
   255  the rendezvous refused the code (expired or already used: get a
        fresh one), could not be reached, or the file could not be written
+`
+
+const helpNotify = `usage: termulaa notify <info|decision|blocker> "<title>" [-body <text>] [-from <name>] [-link <url>] [-key <key>]
+       termulaa notify -cancel <key>
+       termulaa notify setup "<line>"
+
+Sends a notification to the termulaa phone app. The message is encrypted
+to the app's own age key and posted to its secret ntfy topic, so the ntfy
+server sees only ciphertext. The app shows it on the level's channel and,
+with earphones in, speaks "<from>: <title>".
+
+  info      something finished
+  decision  waiting on you
+  blocker   stopped, nothing else to do
+
+The title is one line of at most 80 characters, written to be heard. -from
+defaults to the tmux window name (else the host name); -key defaults to
+-from, and a newer notification with the same key replaces the older one.
+-cancel removes the notification with that key. -link opens on a tap.
+
+Setup: the app's Notifications screen shows a line "<endpoint> <age1…>".
+Run termulaa notify setup "<line>" once. It writes notify.env to
+$KEYKOSH_ROOT/termulaa/ when KEYKOSH_ROOT is set, else ~/.termulaa/.
+
+Exit codes:
+  0    sent
+  2    bad arguments
+  255  no notify.env, or the server refused or could not be reached
 `
 
 const helpMachines = `usage: termulaa machines [--json]
@@ -189,6 +218,8 @@ func helpFor(name string) string {
 		return fmt.Sprintf(helpExec, exitInterrupt, exitTransport, exitTransport)
 	case "shell":
 		return fmt.Sprintf(helpShell, exitTransport)
+	case "notify":
+		return helpNotify
 	case "agents":
 		return fmt.Sprintf(helpAgents, exitTransport, exitTransport, exitTransport, exitTransport, exitInterrupt)
 	}
@@ -196,7 +227,7 @@ func helpFor(name string) string {
 }
 
 // helpTopics lists what `termulaa help <x>` accepts.
-var helpTopics = []string{"pair", "machines", "shell", "exec", "agents"}
+var helpTopics = []string{"pair", "machines", "shell", "exec", "notify", "agents"}
 
 func runHelp(args []string, stdout, stderr io.Writer) int {
 	if len(args) == 0 {
