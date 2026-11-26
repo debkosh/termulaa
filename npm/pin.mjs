@@ -3,7 +3,7 @@
 import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
 
-const repo = 'sudiptadeb/termulaa';
+const repo = 'debkosh/termulaa';
 const platforms = ['darwin/amd64', 'darwin/arm64', 'linux/amd64', 'linux/arm64'];
 const assetName = (os, arch, v) => `termulaa-${os}-${arch}-v${v}`;
 

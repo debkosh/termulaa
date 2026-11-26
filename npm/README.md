@@ -9,7 +9,7 @@ termulaa
 
 The first run downloads the termulaa release this package names from GitHub, checks it against the
 sha256 pinned in the package, and installs it to `~/.local/bin/termulaa`, where the
-[install script](https://github.com/sudiptadeb/termulaa/blob/main/install.sh) puts it. From then on
+[install script](https://github.com/debkosh/termulaa/blob/main/install.sh) puts it. From then on
 the binary there (or in `/usr/local/bin`) is the one that runs, and it keeps itself current.
 
-Everything else: https://github.com/sudiptadeb/termulaa
+Everything else: https://github.com/debkosh/termulaa

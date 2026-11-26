@@ -102,5 +102,5 @@ response only.
 
 - **Non-sensitive issues** — open a GitHub issue.
 - **Sensitive issues** (e.g. a working exploit) — use GitHub's
-  [private vulnerability reporting](https://github.com/sudiptadeb/termulaa/security/advisories/new),
+  [private vulnerability reporting](https://github.com/debkosh/termulaa/security/advisories/new),
   or email <mr.sudiptadeb@gmail.com>.

@@ -110,7 +110,7 @@ jobs:
         env:
           TAG: ${{ steps.rel.outputs.tag }}
         run: |
-          (cd src && go run github.com/sudiptadeb/amarit/cmd/amarit release \
+          (cd src && go run github.com/debkosh/amarit/cmd/amarit release \
             -config ../amarit.json -version "$TAG" -dist ../release -out ../release/releases.json)
           cat release/releases.json
           ls -la release/

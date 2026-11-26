@@ -24,8 +24,8 @@
   "author": "Sudipta Deb",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sudiptadeb/termulaa.git",
+    "url": "git+https://github.com/debkosh/termulaa.git",
     "directory": "npm"
   },
-  "homepage": "https://github.com/sudiptadeb/termulaa"
+  "homepage": "https://github.com/debkosh/termulaa"
 }

@@ -113,7 +113,7 @@ fun SettingsScreen(
             Text("termulaa $versionName", color = Palette.Text,
                 fontFamily = FontFamily.Monospace, style = MaterialTheme.typography.bodyMedium)
             TextButton(onClick = onOpenProject) {
-                Text("github.com/sudiptadeb/termulaa", color = Palette.Green,
+                Text("github.com/debkosh/termulaa", color = Palette.Green,
                     fontFamily = FontFamily.Monospace)
             }
             Spacer(Modifier.height(24.dp))

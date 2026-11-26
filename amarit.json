@@ -1,6 +1,6 @@
 {
   "project": "termulaa",
-  "releases": "https://github.com/sudiptadeb/termulaa/releases/latest/download/releases.json",
+  "releases": "https://github.com/debkosh/termulaa/releases/latest/download/releases.json",
   "interval": "5m",
   "release": {
     "targets": [
@@ -10,6 +10,6 @@
       "linux/amd64"
     ],
     "asset": "termulaa-{os}-{arch}-v{version}",
-    "url": "https://github.com/sudiptadeb/termulaa/releases/download/v{version}/{asset}"
+    "url": "https://github.com/debkosh/termulaa/releases/download/v{version}/{asset}"
   }
 }

@@ -1,9 +1,9 @@
 # termulaa
 
-[![build](https://github.com/sudiptadeb/termulaa/actions/workflows/build.yml/badge.svg)](https://github.com/sudiptadeb/termulaa/actions/workflows/build.yml)
-[![release](https://img.shields.io/github/v/release/sudiptadeb/termulaa?sort=semver)](https://github.com/sudiptadeb/termulaa/releases/latest)
+[![build](https://github.com/debkosh/termulaa/actions/workflows/build.yml/badge.svg)](https://github.com/debkosh/termulaa/actions/workflows/build.yml)
+[![release](https://img.shields.io/github/v/release/debkosh/termulaa?sort=semver)](https://github.com/debkosh/termulaa/releases/latest)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![go.mod](https://img.shields.io/github/go-mod/go-version/sudiptadeb/termulaa?filename=src/go.mod)](src/go.mod)
+[![go.mod](https://img.shields.io/github/go-mod/go-version/debkosh/termulaa?filename=src/go.mod)](src/go.mod)
 
 **Put your terminal — and your coding agents — in a browser tab, right
 next to the webapp they're working on.** Live reload in one tab, Claude
@@ -25,14 +25,14 @@ tracking. Single small Go binary. Loopback-only — see
 ### `go install` (recommended if you have Go)
 
 ```bash
-go install github.com/sudiptadeb/termulaa/src/cmd/termulaa@latest
+go install github.com/debkosh/termulaa/src/cmd/termulaa@latest
 termulaa
 ```
 
 ### One-liner (downloads the latest release binary)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/sudiptadeb/termulaa/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/debkosh/termulaa/main/install.sh | bash
 ```
 
 Or with npm: `npx termulaa`, which installs the binary to the same place and runs it.
@@ -45,7 +45,7 @@ Install, pair and keep the tunnel agent running in one command (see
 [Run it as a service](#run-it-as-a-service)):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/sudiptadeb/termulaa/main/install.sh \
+curl -fsSL https://raw.githubusercontent.com/debkosh/termulaa/main/install.sh \
   | bash -s -- --service --rc-server https://your.server --rc-token <token>
 ```
 
@@ -69,7 +69,7 @@ installer names those processes but never kills them. Pass
 `--no-restart` to stage the binary without touching anything running.
 
 **`termulaa update`.** termulaa updates itself through
-[amarit](https://github.com/sudiptadeb/amarit): it fetches the release
+[amarit](https://github.com/debkosh/amarit): it fetches the release
 manifest (`releases.json` on the latest GitHub release), downloads the newest
 version for this platform, checks size and sha256, smoke-tests it, swaps it
 in keeping `termulaa.prev`, and re-execs; then it prints the version and
@@ -90,13 +90,13 @@ is off by default; the installer's services run with it.
 ### Manual
 
 Grab the binary for your platform from the
-[Releases page](https://github.com/sudiptadeb/termulaa/releases/latest)
+[Releases page](https://github.com/debkosh/termulaa/releases/latest)
 and drop it somewhere on your `PATH`.
 
 ### From source
 
 ```bash
-git clone https://github.com/sudiptadeb/termulaa
+git clone https://github.com/debkosh/termulaa
 cd termulaa
 build/build.sh              # cross-compiles to dist/<os>/
 ./dist/darwin/termulaa-arm64-v0.1.0
@@ -178,7 +178,7 @@ the main point — notifies you when a session produces output while you
 are away (useful when long-running agents work on remote machines).
 Every release ships the APK as a sideloadable asset; grab
 `termulaa.apk` from the
-[latest release](https://github.com/sudiptadeb/termulaa/releases/latest).
+[latest release](https://github.com/debkosh/termulaa/releases/latest).
 It signs in with your rendezvous account and needs a path-mode
 rendezvous (the default).
 
@@ -267,7 +267,7 @@ processes up to start at login/boot and restart on failure — systemd
 *user* units on Linux (no sudo), launchd LaunchAgents on macOS:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/sudiptadeb/termulaa/main/install.sh | bash -s -- --service
+curl -fsSL https://raw.githubusercontent.com/debkosh/termulaa/main/install.sh | bash -s -- --service
 ```
 
 Both services run with `--auto-update`, so from then on they move to
@@ -284,7 +284,7 @@ to install them by hand (replace the `@TERMULAA_BIN@` / `@HOME@`
 placeholders).
 
 **With amarit installed system-wide** (`sudo amarit install --system`,
-see [amarit](https://github.com/sudiptadeb/amarit)), `--service` hands
+see [amarit](https://github.com/debkosh/amarit)), `--service` hands
 both processes to amarit instead, as the units `termulaa` and
 `termulaa-rc` (`amarit run -name ...`; amarit turns auto-update on). A
 machine that already has them is left exactly as it is. Services an
@@ -303,7 +303,7 @@ installer the token and it does all three steps — save the pairing,
 install the services, start the agent:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/sudiptadeb/termulaa/main/install.sh \
+curl -fsSL https://raw.githubusercontent.com/debkosh/termulaa/main/install.sh \
   | bash -s -- --service --rc-server https://your.server --rc-token <token> --rc-label my-box
 ```
 
@@ -443,7 +443,7 @@ Four Go dependencies: [`creack/pty`](https://github.com/creack/pty),
 [`gorilla/websocket`](https://github.com/gorilla/websocket),
 [`xtaci/smux`](https://github.com/xtaci/smux) (multiplexes remote-access
 viewers over the `-rc` tunnel pool), and
-[`sudiptadeb/amarit`](https://github.com/sudiptadeb/amarit) (opt-in
+[`debkosh/amarit`](https://github.com/debkosh/amarit) (opt-in
 self-update from the release manifest, configured by `amarit.json`). Frontend is vendored — Alpine.js,
 Twind, xterm.js + addons — no npm, no bundler, no build step.
 

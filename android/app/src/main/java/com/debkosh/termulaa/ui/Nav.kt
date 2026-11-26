@@ -184,7 +184,7 @@ fun TermulaaNav(
                     } catch (_: Exception) {
                     }
                 },
-                onOpenProject = { openUrl(context, "https://github.com/sudiptadeb/termulaa") },
+                onOpenProject = { openUrl(context, "https://github.com/debkosh/termulaa") },
             )
         }
 

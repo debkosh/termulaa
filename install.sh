@@ -2,15 +2,15 @@
 # termulaa installer — downloads the latest release binary for the host's
 # OS and architecture and installs it to ~/.local/bin/termulaa.
 #
-#   curl -fsSL https://raw.githubusercontent.com/sudiptadeb/termulaa/main/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/debkosh/termulaa/main/install.sh | bash
 #
 # With service setup (systemd user units on Linux, LaunchAgents on macOS):
 #
-#   curl -fsSL https://raw.githubusercontent.com/sudiptadeb/termulaa/main/install.sh | bash -s -- --service
+#   curl -fsSL https://raw.githubusercontent.com/debkosh/termulaa/main/install.sh | bash -s -- --service
 #
 # Install, pair with a rendezvous and keep the tunnel agent running, in one go:
 #
-#   curl -fsSL https://raw.githubusercontent.com/sudiptadeb/termulaa/main/install.sh \
+#   curl -fsSL https://raw.githubusercontent.com/debkosh/termulaa/main/install.sh \
 #     | bash -s -- --service --rc-server https://memd.example.com --rc-token <token>
 #
 # Services keep themselves current: they run with --auto-update, or under
@@ -25,7 +25,7 @@
 
 set -euo pipefail
 
-REPO="sudiptadeb/termulaa"
+REPO="debkosh/termulaa"
 INSTALL_DIR="${INSTALL_DIR:-$HOME/.local/bin}"
 VERSION="${VERSION:-latest}"
 SERVICE=0
@@ -40,7 +40,7 @@ termulaa installer
 
 Usage:
   install.sh [options]
-  curl -fsSL https://raw.githubusercontent.com/sudiptadeb/termulaa/main/install.sh | bash -s -- [options]
+  curl -fsSL https://raw.githubusercontent.com/debkosh/termulaa/main/install.sh | bash -s -- [options]
 
 Options:
   --service     After installing the binary, install and enable it as a

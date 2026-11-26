@@ -3,7 +3,7 @@
 # `install.sh --service`; substitute it yourself for manual installs.
 [Unit]
 Description=termulaa terminal server (loopback-only)
-Documentation=https://github.com/sudiptadeb/termulaa
+Documentation=https://github.com/debkosh/termulaa
 
 [Service]
 ExecStart=@TERMULAA_BIN@ --auto-update
