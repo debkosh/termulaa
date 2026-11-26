@@ -108,7 +108,7 @@ class AppGraph private constructor(private val context: Context) {
 
     // Phone notifications from `termulaa notify` (docs/notify.md).
     val pushStore by lazy { PushStore(context) }
-    val pushNotifier by lazy { PushNotifier(context) { pushStore.mutedUntil } }
+    val pushNotifier by lazy { PushNotifier(context) { pushStore.voiceMode } }
     val speaker by lazy { Speaker(context, pushStore) }
     val pushHistory by lazy { History(java.io.File(context.noBackupFilesDir, "notifications.json")) }
     val pushInbox by lazy {

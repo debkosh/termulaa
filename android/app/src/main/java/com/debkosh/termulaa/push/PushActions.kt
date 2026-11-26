@@ -5,17 +5,22 @@ import android.content.Context
 import android.content.Intent
 import com.debkosh.termulaa.AppGraph
 
-/** The notification buttons: stop the line being spoken, mute or unmute the voice. */
+/**
+ * The notification buttons: "Stop voice" on a spoken notification, and the
+ * listening notification's All / Important / None, which choose what is spoken.
+ */
 class PushActionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val graph = AppGraph.get(context)
+        val store = graph.pushStore
         when (intent.action) {
             STOP -> graph.speaker.stop()
-            MUTE_HOUR -> {
+            VOICE_ALL -> store.voiceMode = PushStore.VoiceMode.ALL
+            VOICE_IMPORTANT -> store.voiceMode = PushStore.VoiceMode.IMPORTANT
+            VOICE_NONE -> {
+                store.voiceMode = PushStore.VoiceMode.NONE
                 graph.speaker.stop()
-                graph.pushStore.mutedUntil = System.currentTimeMillis() + 60 * 60 * 1000L
             }
-            UNMUTE -> graph.pushStore.mutedUntil = 0L
             else -> return
         }
         val state = PushService.state.value
@@ -24,7 +29,8 @@ class PushActionReceiver : BroadcastReceiver() {
 
     companion object {
         const val STOP = "com.debkosh.termulaa.push.STOP_VOICE"
-        const val MUTE_HOUR = "com.debkosh.termulaa.push.MUTE_HOUR"
-        const val UNMUTE = "com.debkosh.termulaa.push.UNMUTE"
+        const val VOICE_ALL = "com.debkosh.termulaa.push.VOICE_ALL"
+        const val VOICE_IMPORTANT = "com.debkosh.termulaa.push.VOICE_IMPORTANT"
+        const val VOICE_NONE = "com.debkosh.termulaa.push.VOICE_NONE"
     }
 }

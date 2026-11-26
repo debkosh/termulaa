@@ -141,13 +141,13 @@ private fun PushSettingsBody(refresh: () -> Unit, askNotifications: () -> Unit) 
     testResult?.let { Text(it, color = Palette.Dim, style = MaterialTheme.typography.bodySmall) }
 
     ToggleRow("Speak finished updates", "Off: they are only shown", store.speakInfo) {
-        store.speakInfo = it; refresh()
+        store.speakInfo = it; voiceChanged(context); refresh()
     }
     ToggleRow("Speak decisions", "Only into earphones, never in Do Not Disturb", store.speakDecision) {
-        store.speakDecision = it; refresh()
+        store.speakDecision = it; voiceChanged(context); refresh()
     }
     ToggleRow("Speak blockers", "Only into earphones, never in Do Not Disturb", store.speakBlocker) {
-        store.speakBlocker = it; refresh()
+        store.speakBlocker = it; voiceChanged(context); refresh()
     }
 
     VoiceSettings(refresh)
@@ -241,6 +241,14 @@ private fun label(name: String, voices: List<Voice>): String {
     val where = v.locale.displayCountry.ifBlank { v.locale.displayName }
     val net = if (v.isNetworkConnectionRequired) " · needs internet" else ""
     return "$where · ${v.name.substringAfter("-x-").substringBefore("-")}$net"
+}
+
+/** Keeps the listening notification's All / Important / None in step with the switches. */
+private fun voiceChanged(context: Context) {
+    val state = PushService.state.value
+    if (state != PushService.State.OFF) {
+        AppGraph.get(context).pushNotifier.updateListening(PushService.describe(state))
+    }
 }
 
 /** "Check for updates", through the amarit library. */

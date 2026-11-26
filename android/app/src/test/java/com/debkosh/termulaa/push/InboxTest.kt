@@ -119,6 +119,17 @@ class InboxTest {
         assertTrue(rec2.spoken.isEmpty())
     }
 
+    @Test fun voiceModesSetTheThreeSwitches() {
+        val s = PushStore(InMemorySecretStore())
+        assertEquals(PushStore.VoiceMode.IMPORTANT, s.voiceMode)
+        s.voiceMode = PushStore.VoiceMode.ALL
+        assertTrue(s.speakInfo && s.speakDecision && s.speakBlocker)
+        s.voiceMode = PushStore.VoiceMode.NONE
+        assertTrue(!s.speakInfo && !s.speakDecision && !s.speakBlocker)
+        s.speakBlocker = true
+        assertEquals(PushStore.VoiceMode.CUSTOM, s.voiceMode)
+    }
+
     @Test fun speechFollowsTheSwitch() {
         val rec = Rec()
         val s = store().apply { speakDecision = false }

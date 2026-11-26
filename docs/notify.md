@@ -153,9 +153,11 @@ termulaa notify setup "<endpoint> <age1…>"
     speaker never talks;
   - Do Not Disturb is off, no call is in progress, the channel isn't muted.
   It ducks music, says "<from>: <title>", and restores.
-- **Buttons:** decision and blocker notifications carry "Stop voice". The
-  listening notification carries "Stop voice" and "Mute voice 1 h" (then
-  "Unmute voice").
+- **Buttons:** every notification carries "Stop voice". The listening
+  notification carries All / Important / None (the current one ticked):
+  speak everything, only decisions and blockers, or nothing. They set the
+  three speak switches in Settings; any other mix shows as "as set in
+  Settings".
 - **Voice settings:** voice (the phone's voices in its language, offline ones
   first), speed, volume (a share of the media volume), and "Pause music while
   speaking" (off: music is lowered under the voice). "Play a sample" speaks on

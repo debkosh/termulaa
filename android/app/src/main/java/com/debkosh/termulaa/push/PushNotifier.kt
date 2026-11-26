@@ -19,7 +19,10 @@ import com.debkosh.termulaa.R
  * One channel per level, so Android's own settings silence each, plus the
  * minimised channel for the listening service's permanent notification.
  */
-class PushNotifier(private val context: Context, private val mutedUntil: () -> Long = { 0L }) {
+class PushNotifier(
+    private val context: Context,
+    private val voiceMode: () -> PushStore.VoiceMode = { PushStore.VoiceMode.IMPORTANT },
+) {
 
     private val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -91,12 +94,14 @@ class PushNotifier(private val context: Context, private val mutedUntil: () -> L
             Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
-        val until = mutedUntil()
-        val muted = System.currentTimeMillis() < until
-        val line = if (muted) {
-            "$text · voice muted until " + java.text.DateFormat.getTimeInstance(java.text.DateFormat.SHORT)
-                .format(java.util.Date(until))
-        } else text
+        val mode = voiceMode()
+        val line = "$text · voice: " + when (mode) {
+            PushStore.VoiceMode.ALL -> "all"
+            PushStore.VoiceMode.IMPORTANT -> "decisions and blockers"
+            PushStore.VoiceMode.NONE -> "off"
+            PushStore.VoiceMode.CUSTOM -> "as set in Settings"
+        }
+        fun label(m: PushStore.VoiceMode, name: String) = if (m == mode) "✓ $name" else name
         return NotificationCompat.Builder(context, CHANNEL_LISTEN)
             .setSmallIcon(R.drawable.ic_stat_termulaa)
             .setContentTitle("Listening for session notifications")
@@ -105,11 +110,9 @@ class PushNotifier(private val context: Context, private val mutedUntil: () -> L
             .setSilent(true)
             .setPriority(NotificationCompat.PRIORITY_MIN)
             .setContentIntent(open)
-            .addAction(0, "Stop voice", action(PushActionReceiver.STOP))
-            .apply {
-                if (muted) addAction(0, "Unmute voice", action(PushActionReceiver.UNMUTE))
-                else addAction(0, "Mute voice 1 h", action(PushActionReceiver.MUTE_HOUR))
-            }
+            .addAction(0, label(PushStore.VoiceMode.ALL, "All"), action(PushActionReceiver.VOICE_ALL))
+            .addAction(0, label(PushStore.VoiceMode.IMPORTANT, "Important"), action(PushActionReceiver.VOICE_IMPORTANT))
+            .addAction(0, label(PushStore.VoiceMode.NONE, "None"), action(PushActionReceiver.VOICE_NONE))
             .build()
     }
 

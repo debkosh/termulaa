@@ -61,10 +61,21 @@ class PushStore(private val s: SecretStore) {
         get() = s.get(K_PAUSE) == "1"
         set(v) = s.put(K_PAUSE, if (v) "1" else null)
 
-    /** Epoch millis until which nothing is spoken (the "Mute voice" button). */
-    var mutedUntil: Long
-        get() = s.get(K_MUTED)?.toLongOrNull() ?: 0L
-        set(v) = s.put(K_MUTED, if (v > 0) v.toString() else null)
+    /** Which levels are spoken, as the listening notification's buttons set them. */
+    var voiceMode: VoiceMode
+        get() = when {
+            speakInfo && speakDecision && speakBlocker -> VoiceMode.ALL
+            !speakInfo && speakDecision && speakBlocker -> VoiceMode.IMPORTANT
+            !speakInfo && !speakDecision && !speakBlocker -> VoiceMode.NONE
+            else -> VoiceMode.CUSTOM
+        }
+        set(v) {
+            speakInfo = v == VoiceMode.ALL
+            speakDecision = v == VoiceMode.ALL || v == VoiceMode.IMPORTANT
+            speakBlocker = speakDecision
+        }
+
+    enum class VoiceMode { ALL, IMPORTANT, NONE, CUSTOM }
 
     /** The id of the last ntfy message handled: the `since=` of the next connect. */
     var lastId: String?
@@ -112,6 +123,5 @@ class PushStore(private val s: SecretStore) {
         private const val K_RATE = "speech_rate"
         private const val K_VOLUME = "speech_volume"
         private const val K_PAUSE = "pause_music"
-        private const val K_MUTED = "muted_until"
     }
 }

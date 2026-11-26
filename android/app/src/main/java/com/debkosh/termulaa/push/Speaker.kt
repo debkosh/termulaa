@@ -26,7 +26,6 @@ class Speaker(private val context: Context, private val store: PushStore) {
 
     /** Why it would stay quiet right now, or null when it may speak. */
     fun quietReason(): String? = when {
-        System.currentTimeMillis() < store.mutedUntil -> "voice muted"
         !earphones() -> "no earphones"
         nm.currentInterruptionFilter > NotificationManager.INTERRUPTION_FILTER_ALL -> "Do Not Disturb"
         audio.mode != AudioManager.MODE_NORMAL -> "a call"
