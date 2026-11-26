@@ -14,7 +14,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sudiptadeb/termulaa/src/internal/termclient"
+	"github.com/debkosh/termulaa/src/internal/termclient"
 )
 
 // fakeRendezvous stands in for memd: it signs an app token in for a cookie,

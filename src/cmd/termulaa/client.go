@@ -17,7 +17,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/sudiptadeb/termulaa/src/internal/termclient"
+	"github.com/debkosh/termulaa/src/internal/termclient"
 )
 
 // Exit codes of the client commands. A remote command's own status passes

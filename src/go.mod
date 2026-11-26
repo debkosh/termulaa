@@ -1,4 +1,4 @@
-module github.com/sudiptadeb/termulaa/src
+module github.com/debkosh/termulaa/src
 
 go 1.25
 

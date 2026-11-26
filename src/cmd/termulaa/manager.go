@@ -15,7 +15,7 @@ import (
 
 	"github.com/gorilla/websocket"
 
-	"github.com/sudiptadeb/termulaa/src/internal/vterm"
+	"github.com/debkosh/termulaa/src/internal/vterm"
 )
 
 // Config holds the termulaa runtime configuration.

@@ -21,7 +21,7 @@ import (
 	"github.com/creack/pty"
 	"github.com/gorilla/websocket"
 
-	"github.com/sudiptadeb/termulaa/src/internal/vterm"
+	"github.com/debkosh/termulaa/src/internal/vterm"
 )
 
 // generateID creates a random hex ID (16 bytes = 32 chars).
