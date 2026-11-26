@@ -14,7 +14,7 @@ require (
 	// age encrypts `termulaa notify` messages to the phone app's key, so the
 	// public ntfy server carries only ciphertext; never hand-roll that.
 	filippo.io/age v1.3.2
-	github.com/sudiptadeb/amarit v0.3.1
+	github.com/sudiptadeb/amarit v0.11.2
 )
 
 require (
