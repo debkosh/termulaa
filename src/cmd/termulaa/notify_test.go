@@ -61,8 +61,13 @@ func TestNotifySendsWhatTheAppCanOpen(t *testing.T) {
 		t.Fatalf("notify.env: %v %v", fi, err)
 	}
 
-	long := strings.Repeat("x", 200)
-	if code := runClient([]string{"notify", "decision", long, "-from", "release", "-link", "https://claude.ai/code/session_1"}, &out, &errb); code != 0 {
+	long := strings.Repeat("x", notifyTitleMax+1)
+	if code := runClient([]string{"notify", "decision", long}, &out, &errb); code != exitUsage || !strings.Contains(errb.String(), "limit is 80") {
+		t.Fatalf("an over-long title: exit %d, %q", code, errb.String())
+	}
+	title := strings.Repeat("é", notifyTitleMax-4) + " yes?"
+	title = string([]rune(title)[:notifyTitleMax])
+	if code := runClient([]string{"notify", "decision", title, "-from", "release", "-link", "https://claude.ai/code/session_1"}, &out, &errb); code != 0 {
 		t.Fatalf("notify exit %d: %s", code, errb.String())
 	}
 	if code := runClient([]string{"notify", "-cancel", "release"}, &out, &errb); code != 0 {
@@ -75,8 +80,8 @@ func TestNotifySendsWhatTheAppCanOpen(t *testing.T) {
 	if m.V != 1 || m.Level != "decision" || m.From != "release" || m.Key != "release" || m.Link != "https://claude.ai/code/session_1" {
 		t.Errorf("message: %+v", m)
 	}
-	if n := len([]rune(m.Title)); n != notifyTitleMax {
-		t.Errorf("title not clipped to %d: %d", notifyTitleMax, n)
+	if m.Title != title {
+		t.Errorf("title changed on the way: %q", m.Title)
 	}
 	if c := open(t, id, got[1]); c.Cancel != "release" || c.Level != "" {
 		t.Errorf("cancel: %+v", c)

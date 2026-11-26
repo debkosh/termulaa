@@ -156,15 +156,6 @@ func defaultFrom() string {
 	return h
 }
 
-// clip cuts s to n characters, ending in an ellipsis when it cut.
-func clip(s string, n int) string {
-	r := []rune(s)
-	if len(r) <= n {
-		return s
-	}
-	return string(r[:n-1]) + "…"
-}
-
 // clipBytes cuts s to at most n bytes on a character boundary.
 func clipBytes(s string, n int) string {
 	if len(s) <= n {
@@ -210,7 +201,13 @@ func runNotify(args []string, stdout, stderr io.Writer) int {
 		}
 		m = notifyMessage{V: 1, Cancel: *cancel}
 	case len(pos) == 2 && notifyLevels[pos[0]] && strings.TrimSpace(pos[1]) != "":
-		m = notifyMessage{V: 1, Level: pos[0], Title: clip(strings.TrimSpace(pos[1]), notifyTitleMax),
+		// The title is read aloud whole; cutting it would drop the end of a
+		// question ("…Yes?" heard as "Y"). Refuse instead, and say why.
+		if n := len([]rune(strings.TrimSpace(pos[1]))); n > notifyTitleMax {
+			fmt.Fprintf(stderr, "termulaa: the title is %d characters; the limit is %d, because it is spoken. Shorten it and put the details in -body.\n", n, notifyTitleMax)
+			return exitUsage
+		}
+		m = notifyMessage{V: 1, Level: pos[0], Title: strings.TrimSpace(pos[1]),
 			Body: clipBytes(*body, notifyBodyMax), From: *from, Link: *link, Key: *key}
 		if m.From == "" {
 			m.From = defaultFrom()
