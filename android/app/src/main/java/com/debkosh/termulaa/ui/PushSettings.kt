@@ -14,19 +14,27 @@ import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.border
+import android.speech.tts.TextToSpeech
+import android.speech.tts.Voice
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,11 +52,13 @@ import com.debkosh.termulaa.push.PushCrypto
 import com.debkosh.termulaa.push.PushMessage
 import com.debkosh.termulaa.push.PushService
 import com.debkosh.termulaa.push.PushWorker
+import com.debkosh.termulaa.push.Speaker
 import com.debkosh.termulaa.push.Wire
 import io.github.sudiptadeb.amarit.Amarit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Locale
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -137,6 +147,8 @@ private fun PushSettingsBody(refresh: () -> Unit, askNotifications: () -> Unit) 
         store.speakBlocker = it; refresh()
     }
 
+    VoiceSettings(refresh)
+
     val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
     if (!pm.isIgnoringBatteryOptimizations(context.packageName)) {
         Text(
@@ -156,6 +168,76 @@ private fun PushSettingsBody(refresh: () -> Unit, askNotifications: () -> Unit) 
                 Uri.parse("package:${context.packageName}")))
         }) { Text("Allow reconnecting on time (alarms)", color = Palette.Green) }
     }
+}
+
+/** Voice, speed, volume and music behaviour, with a sample to hear the result. */
+@Composable
+private fun VoiceSettings(refresh: () -> Unit) {
+    val context = LocalContext.current
+    val graph = AppGraph.get(context)
+    val store = graph.pushStore
+    var voices by remember { mutableStateOf<List<Voice>>(emptyList()) }
+    var picking by remember { mutableStateOf(false) }
+    // A TextToSpeech instance only to list the voices; the Speaker makes its own per line.
+    DisposableEffect(Unit) {
+        var tts: TextToSpeech? = null
+        tts = TextToSpeech(context.applicationContext) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                val lang = Locale.getDefault().language
+                voices = (tts?.voices ?: emptySet())
+                    .filter { it.locale.language == lang && !it.features.contains("notInstalled") }
+                    .sortedWith(compareBy({ it.isNetworkConnectionRequired }, { -it.quality }, { it.name }))
+            }
+        }
+        onDispose { tts?.shutdown() }
+    }
+    var rate by remember { mutableFloatStateOf(store.speechRate) }
+    var volume by remember { mutableFloatStateOf(store.speechVolume) }
+
+    Text("Voice", color = Palette.Text, style = MaterialTheme.typography.bodyMedium,
+        modifier = Modifier.padding(top = 12.dp))
+    Box {
+        TextButton(onClick = { picking = true }) {
+            Text(store.voice?.let { label(it, voices) } ?: "Phone's default voice", color = Palette.Green)
+        }
+        DropdownMenu(expanded = picking, onDismissRequest = { picking = false }) {
+            DropdownMenuItem(text = { Text("Phone's default voice") }, onClick = {
+                store.voice = null; picking = false; refresh()
+            })
+            voices.forEach { v ->
+                DropdownMenuItem(text = { Text(label(v.name, voices)) }, onClick = {
+                    store.voice = v.name; picking = false; refresh()
+                    graph.speaker.say(Speaker.SAMPLE)
+                })
+            }
+        }
+    }
+    Text("Speed ${"%.1f".format(rate)}×", color = Palette.Dim, style = MaterialTheme.typography.bodySmall)
+    Slider(value = rate, onValueChange = { rate = it }, valueRange = 0.6f..1.8f, steps = 11,
+        onValueChangeFinished = { store.speechRate = rate })
+    Text("Volume ${(volume * 100).toInt()}% of the media volume", color = Palette.Dim,
+        style = MaterialTheme.typography.bodySmall)
+    Slider(value = volume, onValueChange = { volume = it }, valueRange = 0.1f..1f,
+        onValueChangeFinished = { store.speechVolume = volume })
+    ToggleRow("Pause music while speaking", "Off: music gets quieter under the voice", store.pauseMusic) {
+        store.pauseMusic = it; refresh()
+    }
+    Row {
+        TextButton(onClick = { graph.speaker.say(Speaker.SAMPLE) }) { Text("Play a sample", color = Palette.Green) }
+        TextButton(onClick = { graph.speaker.stop() }) { Text("Stop", color = Palette.Dim) }
+    }
+    Text(
+        "The sample plays on whatever is playing sound now. Notifications speak only into earphones.",
+        color = Palette.Dim, style = MaterialTheme.typography.bodySmall,
+    )
+}
+
+/** "en-in · 3" style labels: voice names are engine ids like en-in-x-ene-local. */
+private fun label(name: String, voices: List<Voice>): String {
+    val v = voices.firstOrNull { it.name == name } ?: return name
+    val where = v.locale.displayCountry.ifBlank { v.locale.displayName }
+    val net = if (v.isNetworkConnectionRequired) " · needs internet" else ""
+    return "$where · ${v.name.substringAfter("-x-").substringBefore("-")}$net"
 }
 
 /** "Check for updates", through the amarit library. */

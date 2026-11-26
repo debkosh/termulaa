@@ -37,6 +37,30 @@ class PushStore(private val s: SecretStore) {
         get() = s.get(K_SPEAK_BLOCKER) != "0"
         set(v) = s.put(K_SPEAK_BLOCKER, if (v) null else "0")
 
+    /** The text-to-speech voice's name; null is the engine's default. */
+    var voice: String?
+        get() = s.get(K_VOICE)
+        set(v) = s.put(K_VOICE, v)
+
+    var speechRate: Float
+        get() = s.get(K_RATE)?.toFloatOrNull() ?: 1f
+        set(v) = s.put(K_RATE, v.toString())
+
+    /** 0..1, on top of the media volume. */
+    var speechVolume: Float
+        get() = s.get(K_VOLUME)?.toFloatOrNull() ?: 1f
+        set(v) = s.put(K_VOLUME, v.toString())
+
+    /** Pause music for the line instead of lowering it. */
+    var pauseMusic: Boolean
+        get() = s.get(K_PAUSE) == "1"
+        set(v) = s.put(K_PAUSE, if (v) "1" else null)
+
+    /** Epoch millis until which nothing is spoken (the "Mute voice" button). */
+    var mutedUntil: Long
+        get() = s.get(K_MUTED)?.toLongOrNull() ?: 0L
+        set(v) = s.put(K_MUTED, if (v > 0) v.toString() else null)
+
     /** The id of the last ntfy message handled: the `since=` of the next connect. */
     var lastId: String?
         get() = s.get(K_LAST_ID)
@@ -78,5 +102,10 @@ class PushStore(private val s: SecretStore) {
         private const val K_SPEAK_BLOCKER = "speak_blocker"
         private const val K_LAST_ID = "last_id"
         private const val K_RECENT = "recent_ids"
+        private const val K_VOICE = "voice"
+        private const val K_RATE = "speech_rate"
+        private const val K_VOLUME = "speech_volume"
+        private const val K_PAUSE = "pause_music"
+        private const val K_MUTED = "muted_until"
     }
 }

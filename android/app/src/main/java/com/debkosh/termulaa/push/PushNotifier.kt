@@ -19,7 +19,7 @@ import com.debkosh.termulaa.R
  * One channel per level, so Android's own settings silence each, plus the
  * minimised channel for the listening service's permanent notification.
  */
-class PushNotifier(private val context: Context) {
+class PushNotifier(private val context: Context, private val mutedUntil: () -> Long = { 0L }) {
 
     private val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -75,6 +75,7 @@ class PushNotifier(private val context: Context) {
             .setPriority(if (m.level == "info") NotificationCompat.PRIORITY_LOW else NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(tapIntent(m))
             .setAutoCancel(true)
+            .apply { if (m.level != "info") addAction(0, "Stop voice", action(PushActionReceiver.STOP)) }
             .setWhen(System.currentTimeMillis())
             .setShowWhen(true)
             .build()
@@ -89,16 +90,33 @@ class PushNotifier(private val context: Context) {
             Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
+        val until = mutedUntil()
+        val muted = System.currentTimeMillis() < until
+        val line = if (muted) {
+            "$text · voice muted until " + java.text.DateFormat.getTimeInstance(java.text.DateFormat.SHORT)
+                .format(java.util.Date(until))
+        } else text
         return NotificationCompat.Builder(context, CHANNEL_LISTEN)
             .setSmallIcon(R.drawable.ic_stat_termulaa)
             .setContentTitle("Listening for session notifications")
-            .setContentText(text)
+            .setContentText(line)
             .setOngoing(true)
             .setSilent(true)
             .setPriority(NotificationCompat.PRIORITY_MIN)
             .setContentIntent(open)
+            .addAction(0, "Stop voice", action(PushActionReceiver.STOP))
+            .apply {
+                if (muted) addAction(0, "Unmute voice", action(PushActionReceiver.UNMUTE))
+                else addAction(0, "Mute voice 1 h", action(PushActionReceiver.MUTE_HOUR))
+            }
             .build()
     }
+
+    private fun action(name: String): PendingIntent = PendingIntent.getBroadcast(
+        context, name.hashCode(),
+        Intent(context, PushActionReceiver::class.java).setAction(name),
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+    )
 
     fun updateListening(text: String) {
         if (canPost()) nm.notify(ID_LISTEN, listening(text))

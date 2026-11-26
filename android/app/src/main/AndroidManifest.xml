@@ -58,6 +58,10 @@
         </service>
 
         <receiver
+            android:name=".push.PushActionReceiver"
+            android:exported="false" />
+
+        <receiver
             android:name=".push.PushBootReceiver"
             android:exported="false">
             <intent-filter>

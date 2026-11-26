@@ -153,12 +153,23 @@ termulaa notify setup "<endpoint> <age1…>"
     speaker never talks;
   - Do Not Disturb is off, no call is in progress, the channel isn't muted.
   It ducks music, says "<from>: <title>", and restores.
+- **Buttons:** decision and blocker notifications carry "Stop voice". The
+  listening notification carries "Stop voice" and "Mute voice 1 h" (then
+  "Unmute voice").
+- **Voice settings:** voice (the phone's voices in its language, offline ones
+  first), speed, volume (a share of the media volume), and "Pause music while
+  speaking" (off: music is lowered under the voice). "Play a sample" speaks on
+  the current output, earphones or not.
 - **Missed messages:** reconnect with `since=<last id>`, plus the poll worker.
 
 ## Not now
 
 - History, rate limits, dedupe beyond replace-by-key, digests: add one only
   when a real annoyance shows up.
+- **Reply from the phone** (asked 2026-11-26, later): hold to talk or type and
+  send from the notification, delivered into the session. Needs a return path
+  (phone → a second topic, sealed to a key on the computer → a listener there
+  that types into the session's pane).
 - memd serving the ntfy protocol instead of ntfy.sh: possible later; the app
   would only change its base URL.
 
