@@ -105,6 +105,20 @@ jobs:
           cp android/app/build/outputs/apk/release/app-release.apk "release/termulaa-android-$TAG.apk"
           cp android/app/build/outputs/apk/release/app-release.apk "release/termulaa.apk"
 
+      # A binary without its stamped amarit.json never updates again, and says so
+      # on every start; 0.7.0 shipped that way after a module rename. Refuse it.
+      - name: Check the binaries can update themselves
+        if: steps.rel.outputs.release == 'true'
+        env:
+          TAG: ${{ steps.rel.outputs.tag }}
+        run: |
+          out=$("release/termulaa-linux-amd64-$TAG" -version 2>&1)
+          echo "$out"
+          if echo "$out" | grep -q "no releases URL"; then
+            echo "::error::the update config was not stamped in: build/build.sh's -X names a module path the binary does not link"
+            exit 1
+          fi
+
       # amarit: the manifest that lets installed binaries find this release.
       - name: Write release manifest
         if: steps.rel.outputs.release == 'true'

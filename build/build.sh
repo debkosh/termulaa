@@ -98,7 +98,7 @@ build_one() {
     AMARIT_PROJECT="$(base64 < "$PROJECT_ROOT/amarit.json" | tr -d '\n')"
 
     if CGO_ENABLED=0 GOOS="$GOOS" GOARCH="$GOARCH" go build \
-        -ldflags "-X main.Version=$EMBED_VERSION -X main.BuildTime=$BUILD_TIME -X main.GitCommit=$GIT_COMMIT -X github.com/debkosh/amarit.stampedProject=$AMARIT_PROJECT -X github.com/debkosh/amarit.stampedVersion=${EMBED_VERSION#v} -s -w" \
+        -ldflags "-X main.Version=$EMBED_VERSION -X main.BuildTime=$BUILD_TIME -X main.GitCommit=$GIT_COMMIT -X github.com/sudiptadeb/amarit.stampedProject=$AMARIT_PROJECT -X github.com/sudiptadeb/amarit.stampedVersion=${EMBED_VERSION#v} -s -w" \
         -o "$TARGET_DIR/$OUTPUT_NAME" \
         "$CMD_PATH"; then
         [ "$GOOS" != "windows" ] && chmod +x "$TARGET_DIR/$OUTPUT_NAME"
