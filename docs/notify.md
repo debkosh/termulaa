@@ -160,6 +160,11 @@ termulaa notify setup "<endpoint> <age1…>"
   first), speed, volume (a share of the media volume), and "Pause music while
   speaking" (off: music is lowered under the voice). "Play a sample" speaks on
   the current output, earphones or not.
+- **Heard means done:** a notification spoken to the end is removed; one that
+  was stopped, muted or not spoken stays. Before speaking, markup symbols are
+  dropped and links become "a link".
+- **Speech engine:** Android's own TextToSpeech, which on his phone is Google's
+  speech engine with on-device voices (no network needed for those).
 - **Missed messages:** reconnect with `since=<last id>`, plus the poll worker.
 
 ## Not now

@@ -50,13 +50,17 @@ class Speaker(private val context: Context, private val store: PushStore) {
         current?.finish()
     }
 
-    /** Speaks [text] with the chosen voice, speed and volume (the sample ignores the quiet rules). */
-    fun say(text: String) {
+    /**
+     * Speaks [text] with the chosen voice, speed and volume (the sample ignores
+     * the quiet rules). [spoken] runs only when the whole line was said, not
+     * when it was stopped or failed.
+     */
+    fun say(text: String, spoken: () -> Unit = {}) {
         stop()
-        current = Line(text)
+        current = Line(speakable(text), spoken)
     }
 
-    private inner class Line(text: String) {
+    private inner class Line(text: String, private val spoken: () -> Unit) {
         private val attrs = AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
             .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
@@ -84,7 +88,11 @@ class Speaker(private val context: Context, private val store: PushStore) {
                 t.setAudioAttributes(attrs)
                 t.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
                     override fun onStart(id: String?) {}
-                    override fun onDone(id: String?) = finish()
+                    override fun onDone(id: String?) {
+                        val whole = !finished
+                        finish()
+                        if (whole) spoken()
+                    }
                     @Deprecated("Deprecated in Java")
                     override fun onError(id: String?) = finish()
                     override fun onStop(id: String?, interrupted: Boolean) = finish()
@@ -111,6 +119,13 @@ class Speaker(private val context: Context, private val store: PushStore) {
     }
 
     companion object {
+        /** What a sender wrote for the screen, made fit to hear: no markup, no link text. */
+        fun speakable(text: String): String = text
+            .replace(Regex("https?://\\S+"), "a link")
+            .replace(Regex("[`*_#>|~]+"), " ")
+            .replace(Regex("\\s+"), " ")
+            .trim()
+
         const val SAMPLE = "project-b release: ready to merge 0.9, needs your yes."
     }
 }
