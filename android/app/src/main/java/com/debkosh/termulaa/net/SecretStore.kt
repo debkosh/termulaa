@@ -30,13 +30,13 @@ class InMemorySecretStore : SecretStore {
  * still fails we degrade to an in-memory store for this process — the user
  * simply has to sign in again next launch, the app must not crash.
  */
-class EncryptedSecretStore(context: Context) : SecretStore {
+class EncryptedSecretStore(context: Context, private val file: String = FILE) : SecretStore {
 
     private val delegate: SecretStore = try {
         PrefsBacked(open(context))
     } catch (_: Exception) {
         try {
-            context.deleteSharedPreferences(FILE)
+            context.deleteSharedPreferences(file)
             PrefsBacked(open(context))
         } catch (_: Exception) {
             InMemorySecretStore()
@@ -49,7 +49,7 @@ class EncryptedSecretStore(context: Context) : SecretStore {
             .build()
         return EncryptedSharedPreferences.create(
             context,
-            FILE,
+            file,
             masterKey,
             EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
             EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,

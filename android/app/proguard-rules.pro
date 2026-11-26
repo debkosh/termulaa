@@ -53,3 +53,9 @@
 -dontwarn com.google.errorprone.annotations.**
 -dontwarn com.google.api.client.http.**
 -dontwarn org.joda.time.**
+
+# ── Phone notifications ─────────────────────────────────────────────────────
+# The decrypted message and the ntfy event are a wire contract with
+# `termulaa notify` (src/cmd/termulaa/notify.go) and ntfy; keep them whole.
+-keep,includedescriptorclasses class com.debkosh.termulaa.push.PushMessage { *; }
+-keep,includedescriptorclasses class com.debkosh.termulaa.push.NtfyEvent { *; }

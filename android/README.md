@@ -19,6 +19,11 @@ Connect → Machines → Terminal.)*
   and an optional 45-second live-watch foreground service. One notification
   per machine for new session output; separate channel for offline alerts.
   Tapping one deep-links straight into that machine's terminal.
+- **Session notifications** — `termulaa notify` on any computer reaches the
+  phone: one channel per level (finished, needs your decision, blocked),
+  spoken into earphones, encrypted to a key only the phone holds and carried
+  by ntfy.sh. Turn it on in Settings > Session notifications. Design and
+  tests: [docs/notify.md](../docs/notify.md).
 - **Terminal** — the full termulaa web UI (tabs, split panes, key bar) in a
   locked-down WebView sharing the memd session cookie. The app adds nothing
   inside the page.

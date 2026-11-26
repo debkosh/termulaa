@@ -1,6 +1,8 @@
 package com.debkosh.termulaa
 
 import android.app.Application
+import com.debkosh.termulaa.push.PushService
+import com.debkosh.termulaa.push.PushWorker
 import com.debkosh.termulaa.watch.WatchService
 import com.debkosh.termulaa.work.CheckWorker
 import kotlinx.coroutines.launch
@@ -15,6 +17,11 @@ class TermulaaApp : Application() {
             if (graph.store.serverUrlNow() != null) {
                 CheckWorker.schedule(this@TermulaaApp, graph.store.pollMinutesNow())
                 if (graph.store.watchEnabledNow()) WatchService.start(this@TermulaaApp)
+            }
+            // Phone notifications do not depend on the memd sign-in.
+            if (graph.pushStore.enabled && graph.pushStore.isSetUp) {
+                PushWorker.schedule(this@TermulaaApp)
+                PushService.start(this@TermulaaApp)
             }
         }
     }

@@ -109,6 +109,9 @@ fun SettingsScreen(
             }
             SettingsDivider()
 
+            PushSettings()
+            SettingsDivider()
+
             SectionLabel("About")
             Text("termulaa $versionName", color = Palette.Text,
                 fontFamily = FontFamily.Monospace, style = MaterialTheme.typography.bodyMedium)
@@ -122,14 +125,14 @@ fun SettingsScreen(
 }
 
 @Composable
-private fun SectionLabel(text: String) {
+internal fun SectionLabel(text: String) {
     Spacer(Modifier.height(16.dp))
     Text(text.uppercase(), color = Palette.Dim, style = MaterialTheme.typography.labelSmall)
     Spacer(Modifier.height(8.dp))
 }
 
 @Composable
-private fun SettingsDivider() {
+internal fun SettingsDivider() {
     Spacer(Modifier.height(14.dp))
     HorizontalDivider(color = Palette.Border)
 }

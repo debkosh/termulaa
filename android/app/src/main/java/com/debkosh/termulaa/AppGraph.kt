@@ -7,6 +7,10 @@ import com.debkosh.termulaa.net.EncryptedSecretStore
 import com.debkosh.termulaa.net.MemdClient
 import com.debkosh.termulaa.net.MemdCookieJar
 import com.debkosh.termulaa.notify.AndroidNotifier
+import com.debkosh.termulaa.push.Inbox
+import com.debkosh.termulaa.push.PushNotifier
+import com.debkosh.termulaa.push.PushStore
+import com.debkosh.termulaa.push.Speaker
 import com.debkosh.termulaa.store.AppStore
 import com.debkosh.termulaa.work.CheckRunner
 import kotlinx.coroutines.CoroutineScope
@@ -100,6 +104,24 @@ class AppGraph private constructor(private val context: Context) {
     val repository by lazy { MachinesRepository(client, store) }
 
     val checkRunner by lazy { CheckRunner(client, store, notifier) }
+
+    // Phone notifications from `termulaa notify` (docs/notify.md).
+    val pushStore by lazy { PushStore(context) }
+    val pushNotifier by lazy { PushNotifier(context) }
+    private val speaker by lazy { Speaker(context) }
+    val pushInbox by lazy {
+        Inbox(
+            store = pushStore,
+            show = pushNotifier::show,
+            cancel = pushNotifier::cancel,
+            speak = { m ->
+                val channel = pushNotifier.channelFor(m.level ?: "")
+                if (channel != null && pushNotifier.channelOn(channel) && speaker.quietReason() == null) {
+                    speaker.say("${m.from ?: "termulaa"}: ${m.title}")
+                }
+            },
+        )
+    }
 
     companion object {
         // The graph holds only the APPLICATION context (see get()), which has
