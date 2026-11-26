@@ -111,7 +111,7 @@ jobs:
         env:
           TAG: ${{ steps.rel.outputs.tag }}
         run: |
-          (cd src && go run github.com/debkosh/amarit/cmd/amarit release \
+          (cd src && go run github.com/sudiptadeb/amarit/cmd/amarit release \
             -config ../amarit.json -version "$TAG" -dist ../release -out ../release/releases.json)
           # The phone app's own manifest (android/amarit.json), read by the amarit
           # Android library. versionCode is the formula app/build.gradle.kts uses.
