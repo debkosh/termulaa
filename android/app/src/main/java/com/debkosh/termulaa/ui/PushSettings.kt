@@ -146,10 +146,10 @@ private fun PushSettingsBody(refresh: () -> Unit, askNotifications: () -> Unit) 
     ToggleRow("Speak finished updates", "Off: they are only shown", store.speakInfo) {
         store.speakInfo = it; voiceChanged(context); refresh()
     }
-    ToggleRow("Speak decisions", "Only into earphones, never in Do Not Disturb", store.speakDecision) {
+    ToggleRow("Speak decisions", "Never in Do Not Disturb or a call", store.speakDecision) {
         store.speakDecision = it; voiceChanged(context); refresh()
     }
-    ToggleRow("Speak blockers", "Only into earphones, never in Do Not Disturb", store.speakBlocker) {
+    ToggleRow("Speak blockers", "Never in Do Not Disturb or a call", store.speakBlocker) {
         store.speakBlocker = it; voiceChanged(context); refresh()
     }
 
@@ -225,6 +225,11 @@ private fun VoiceSettings(refresh: () -> Unit) {
         style = MaterialTheme.typography.bodySmall)
     Slider(value = volume, onValueChange = { volume = it }, valueRange = 0.1f..1f,
         onValueChangeFinished = { store.speechVolume = volume })
+    ToggleRow("Speak on the phone speaker too", "When no earphones are in. Never in Do Not Disturb or a call",
+        store.speakOnSpeaker) { store.speakOnSpeaker = it; refresh() }
+    ToggleRow("Shake or turn face down to stop", "Silences the voice, like a ringing phone", store.gestureStop) {
+        store.gestureStop = it; refresh()
+    }
     ToggleRow("Pause music while speaking", "Off: music gets quieter under the voice", store.pauseMusic) {
         store.pauseMusic = it; refresh()
     }

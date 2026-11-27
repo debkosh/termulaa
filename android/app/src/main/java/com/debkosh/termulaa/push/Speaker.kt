@@ -27,11 +27,14 @@ class Speaker(private val context: Context, private val store: PushStore) {
     private var current: Line? = null
     private val waiting = ArrayDeque<Queued>()
 
+    // Shake or face down silences the voice, like silencing a ringing phone.
+    private val gesture = StopGesture(context) { stop() }
+
     private class Queued(val key: String?, val text: String, val spoken: () -> Unit)
 
     /** Why it would stay quiet right now, or null when it may speak. */
     fun quietReason(): String? = when {
-        !earphones() -> "no earphones"
+        !earphones() && !store.speakOnSpeaker -> "no earphones"
         nm.currentInterruptionFilter > NotificationManager.INTERRUPTION_FILTER_ALL -> "Do Not Disturb"
         audio.mode != AudioManager.MODE_NORMAL -> "a call"
         else -> null
@@ -91,10 +94,15 @@ class Speaker(private val context: Context, private val store: PushStore) {
             synchronized(this) {
                 if (current != null) return@post
                 while (true) {
-                    val q = waiting.removeFirstOrNull() ?: return@post
+                    val q = waiting.removeFirstOrNull()
+                    if (q == null) {
+                        gesture.stop()
+                        return@post
+                    }
                     // A notification waits its turn; the rules are checked again.
                     if (q.key != null && quietReason() != null) continue
                     current = Line(speakable(q.text), q.spoken)
+                    if (store.gestureStop) gesture.start()
                     return@post
                 }
             }

@@ -179,6 +179,12 @@ termulaa notify setup "<endpoint> <age1…>"
   while it waits is said once, in its newest form; one taken back is dropped.
   Stop voice and None silence the line and everything waiting. Earphones and
   Do Not Disturb are checked again when each line's turn comes.
+- **Like a ringing phone** (0.7.9): shake the phone (three jolts within a
+  second) or turn it face down to silence the voice and everything waiting.
+  A phone already lying face down when the voice starts does not stop it; it
+  has to be turned. Off in Settings, "Shake or turn face down to stop".
+- **On the speaker** (0.7.9, off by default): "Speak on the phone speaker too"
+  speaks when no earphones are in. Do Not Disturb and calls still keep it quiet.
 - **Speech engine:** Android's own TextToSpeech, which on his phone is Google's
   speech engine with on-device voices (no network needed for those).
 - **Missed messages:** reconnect with `since=<last id>`, plus the poll worker.

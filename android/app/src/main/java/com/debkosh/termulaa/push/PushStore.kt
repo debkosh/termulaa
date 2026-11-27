@@ -57,6 +57,16 @@ class PushStore(private val s: SecretStore) {
         set(v) = s.put(K_VOLUME, v.toString())
 
     /** Pause music for the line instead of lowering it. */
+    /** Speak through the phone's own speaker when no earphones are in. */
+    var speakOnSpeaker: Boolean
+        get() = s.get(K_SPEAKER) == "1"
+        set(v) = s.put(K_SPEAKER, if (v) "1" else null)
+
+    /** Shake the phone or turn it face down to stop the voice (on by default). */
+    var gestureStop: Boolean
+        get() = s.get(K_GESTURE) != "0"
+        set(v) = s.put(K_GESTURE, if (v) null else "0")
+
     var pauseMusic: Boolean
         get() = s.get(K_PAUSE) == "1"
         set(v) = s.put(K_PAUSE, if (v) "1" else null)
@@ -139,5 +149,7 @@ class PushStore(private val s: SecretStore) {
         private const val K_RATE = "speech_rate"
         private const val K_VOLUME = "speech_volume"
         private const val K_PAUSE = "pause_music"
+        private const val K_SPEAKER = "speak_on_speaker"
+        private const val K_GESTURE = "gesture_stop"
     }
 }
