@@ -174,6 +174,11 @@ termulaa notify setup "<endpoint> <age1…>"
 - **Heard means done:** a notification spoken to the end is removed; one that
   was stopped, muted or not spoken stays. Before speaking, markup symbols are
   dropped and links become "a link".
+- **One after another:** a burst of messages is spoken in turn, never cut off
+  by the next (before 0.7.8 each new one cut off the last). A message updated
+  while it waits is said once, in its newest form; one taken back is dropped.
+  Stop voice and None silence the line and everything waiting. Earphones and
+  Do Not Disturb are checked again when each line's turn comes.
 - **Speech engine:** Android's own TextToSpeech, which on his phone is Google's
   speech engine with on-device voices (no network needed for those).
 - **Missed messages:** reconnect with `since=<last id>`, plus the poll worker.

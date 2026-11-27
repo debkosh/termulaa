@@ -15,14 +15,19 @@ import android.speech.tts.UtteranceProgressListener
 /**
  * Says a notification out loud, only into earphones, only with Do Not
  * Disturb off and no call going. Music is lowered (or paused, by choice)
- * for the line. One line at a time; [stop] cuts it off.
+ * for the line. Lines wait their turn: a burst of messages is said one after
+ * another, never cut off by the next. [stop] silences the line and the queue.
  */
 class Speaker(private val context: Context, private val store: PushStore) {
 
     private val audio = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     private val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-    @Volatile private var current: Line? = null
+    private val main = android.os.Handler(android.os.Looper.getMainLooper())
+    private var current: Line? = null
+    private val waiting = ArrayDeque<Queued>()
+
+    private class Queued(val key: String?, val text: String, val spoken: () -> Unit)
 
     /** Why it would stay quiet right now, or null when it may speak. */
     fun quietReason(): String? = when {
@@ -44,19 +49,56 @@ class Speaker(private val context: Context, private val store: PushStore) {
         return audio.getDevices(AudioManager.GET_DEVICES_OUTPUTS).any { it.type in types }
     }
 
-    /** Stops the line being spoken, if any. */
+    /** Stops the line being spoken and drops every line waiting. */
     fun stop() {
-        current?.finish()
+        val line = synchronized(this) {
+            waiting.clear()
+            current
+        }
+        line?.finish()
+    }
+
+    /** Says [text] now, ahead of anything waiting: the settings sample. */
+    fun say(text: String) {
+        stop()
+        synchronized(this) { waiting.addFirst(Queued(null, text) {}) }
+        next()
     }
 
     /**
-     * Speaks [text] with the chosen voice, speed and volume (the sample ignores
-     * the quiet rules). [spoken] runs only when the whole line was said, not
-     * when it was stopped or failed.
+     * Says [text] after the lines before it. A line still waiting under the
+     * same [key] is replaced, so an updated message is said once. [spoken]
+     * runs only when the whole line was said, not when it was stopped, failed
+     * or skipped because earphones went out meanwhile.
      */
-    fun say(text: String, spoken: () -> Unit = {}) {
-        stop()
-        current = Line(speakable(text), spoken)
+    fun queue(text: String, key: String?, spoken: () -> Unit = {}) {
+        synchronized(this) {
+            val item = Queued(key, text, spoken)
+            val at = if (key == null) -1 else waiting.indexOfFirst { it.key == key }
+            if (at >= 0) waiting[at] = item else waiting.addLast(item)
+        }
+        next()
+    }
+
+    /** Drops a waiting line, when its message is taken back. */
+    fun drop(key: String) {
+        synchronized(this) { waiting.removeAll { it.key == key } }
+    }
+
+    /** Starts the next waiting line if none is being said. */
+    private fun next() {
+        main.post {
+            synchronized(this) {
+                if (current != null) return@post
+                while (true) {
+                    val q = waiting.removeFirstOrNull() ?: return@post
+                    // A notification waits its turn; the rules are checked again.
+                    if (q.key != null && quietReason() != null) continue
+                    current = Line(speakable(q.text), q.spoken)
+                    return@post
+                }
+            }
+        }
     }
 
     private inner class Line(text: String, private val spoken: () -> Unit) {
@@ -113,7 +155,8 @@ class Speaker(private val context: Context, private val store: PushStore) {
             }
             audio.abandonAudioFocusRequest(focus)
             if (wake.isHeld) wake.release()
-            if (current === this) current = null
+            synchronized(this@Speaker) { if (current === this) current = null }
+            next()
         }
     }
 
