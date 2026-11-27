@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -91,7 +92,6 @@ fun MachinesScreen(
     /** The Notifications tab's content; null shows machines only. */
     notifications: (@Composable () -> Unit)? = null,
 ) {
-    var menuOpen by remember { mutableStateOf(false) }
     var tab by rememberSaveable { mutableStateOf(if (notifications != null) 0 else 1) }
 
     Scaffold(
@@ -107,25 +107,18 @@ fun MachinesScreen(
                     Text("termulaa", fontFamily = FontFamily.Monospace, color = Palette.Green)
                 },
                 actions = {
-                    Text("watch", color = Palette.Dim, style = MaterialTheme.typography.labelSmall)
-                    Switch(
-                        checked = state.watchOn,
-                        onCheckedChange = onWatchToggle,
-                        colors = SwitchDefaults.colors(checkedTrackColor = Palette.Green),
-                        modifier = Modifier.padding(horizontal = 8.dp).testTag("watch-toggle"),
-                    )
-                    IconButton(onClick = { menuOpen = true }, modifier = Modifier.testTag("overflow")) {
-                        Icon(Icons.Default.MoreVert, contentDescription = "Menu", tint = Palette.Dim)
+                    // Live watch is about machines, so it shows on their tab only.
+                    if (notifications == null || tab == 1) {
+                        Text("watch", color = Palette.Dim, style = MaterialTheme.typography.labelSmall)
+                        Switch(
+                            checked = state.watchOn,
+                            onCheckedChange = onWatchToggle,
+                            colors = SwitchDefaults.colors(checkedTrackColor = Palette.Green),
+                            modifier = Modifier.padding(horizontal = 8.dp).testTag("watch-toggle"),
+                        )
                     }
-                    DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
-                        DropdownMenuItem(
-                            text = { Text("Settings") },
-                            onClick = { menuOpen = false; onSettings() },
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Sign out") },
-                            onClick = { menuOpen = false; onSignOut() },
-                        )
+                    IconButton(onClick = onSettings, modifier = Modifier.testTag("settings")) {
+                        Icon(Icons.Default.Settings, contentDescription = "Settings", tint = Palette.Dim)
                     }
                 },
             )

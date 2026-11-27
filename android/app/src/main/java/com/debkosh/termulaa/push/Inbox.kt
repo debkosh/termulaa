@@ -14,6 +14,8 @@ class Inbox(
     /** Whether the voice may speak now (earphones, Do Not Disturb, mute, channel on). */
     private val canSpeak: (PushMessage) -> Boolean = { true },
     private val record: (HistoryEntry) -> Unit = {},
+    /** Shows it on screen over other apps, when it arrives fresh. */
+    private val popup: (PushMessage, Boolean) -> Unit = { _, _ -> },
     private val now: () -> Long = { System.currentTimeMillis() / 1000 },
 ) {
 
@@ -42,9 +44,12 @@ class Inbox(
             else -> store.speakInfo
         }
         val voiced = fresh && wanted && canSpeak(m)
-        show(m, voiced)
+        // Recorded first: the notification shows the sender's recent messages.
         record(HistoryEntry(id = ev.id, at = if (ev.time > 0) ev.time else now(), level = m.level!!,
-            from = m.from ?: "", title = m.title!!, body = m.body ?: "", link = m.link ?: ""))
+            from = m.from ?: "", title = m.title!!, body = m.body ?: "", link = m.link ?: "",
+            key = m.key ?: ""))
+        show(m, voiced)
+        if (fresh) popup(m, voiced)
         if (voiced) speak(m)
         return "shown"
     }

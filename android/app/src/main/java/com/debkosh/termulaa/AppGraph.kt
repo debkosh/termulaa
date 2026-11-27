@@ -9,6 +9,7 @@ import com.debkosh.termulaa.net.MemdCookieJar
 import com.debkosh.termulaa.notify.AndroidNotifier
 import com.debkosh.termulaa.push.History
 import com.debkosh.termulaa.push.Inbox
+import com.debkosh.termulaa.push.Popup
 import com.debkosh.termulaa.push.PushNotifier
 import com.debkosh.termulaa.push.PushStore
 import com.debkosh.termulaa.push.Speaker
@@ -111,14 +112,20 @@ class AppGraph private constructor(private val context: Context) {
     val pushNotifier by lazy { PushNotifier(context) { pushStore.voiceMode } }
     val speaker by lazy { Speaker(context, pushStore) }
     val pushHistory by lazy { History(java.io.File(context.noBackupFilesDir, "notifications.json")) }
+    val popup by lazy { Popup(context, pushStore) }
     val pushInbox by lazy {
         Inbox(
             store = pushStore,
-            show = pushNotifier::show,
+            show = { m, silent ->
+                val sender = m.from?.takeIf { it.isNotBlank() } ?: "termulaa"
+                pushNotifier.show(m, silent, pushHistory.recent(sender, PushNotifier.RECENT))
+            },
             cancel = { key ->
                 pushNotifier.cancel(key)
                 speaker.drop(key)
+                pushHistory.markTaken(key)
             },
+            popup = popup::offer,
             speak = { m ->
                 val key = m.key ?: m.from ?: "termulaa"
                 // Heard in full: the notification has done its job.

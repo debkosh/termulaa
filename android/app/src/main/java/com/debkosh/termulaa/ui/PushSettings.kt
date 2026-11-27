@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
@@ -52,6 +53,7 @@ import com.debkosh.termulaa.AppGraph
 import com.debkosh.termulaa.push.PushCrypto
 import com.debkosh.termulaa.push.PushMessage
 import com.debkosh.termulaa.push.PushService
+import com.debkosh.termulaa.push.PushStore
 import com.debkosh.termulaa.push.PushWorker
 import com.debkosh.termulaa.push.Speaker
 import com.debkosh.termulaa.push.Wire
@@ -143,6 +145,7 @@ private fun PushSettingsBody(refresh: () -> Unit, askNotifications: () -> Unit) 
     }
     testResult?.let { Text(it, color = Palette.Dim, style = MaterialTheme.typography.bodySmall) }
 
+    SectionLabel("Voice")
     ToggleRow("Speak finished updates", "Off: they are only shown", store.speakInfo) {
         store.speakInfo = it; voiceChanged(context); refresh()
     }
@@ -155,6 +158,10 @@ private fun PushSettingsBody(refresh: () -> Unit, askNotifications: () -> Unit) 
 
     VoiceSettings(refresh)
 
+    SectionLabel("On screen")
+    PopupSettings(refresh)
+
+    SectionLabel("Keep it running")
     val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
     if (!pm.isIgnoringBatteryOptimizations(context.packageName)) {
         Text(
@@ -351,4 +358,69 @@ private fun ServerAddress(endpoint: String, refresh: () -> Unit) {
         }) { Text("Use it", color = Palette.Green) }
         TextButton(onClick = { editing = false }) { Text("Cancel", color = Palette.Dim) }
     }
+}
+
+/**
+ * The popup over other apps: which messages show (Off / Important / All, as
+ * the voice's buttons), how long, the permission Android asks for, and a
+ * sample.
+ */
+@Composable
+private fun PopupSettings(refresh: () -> Unit) {
+    val context = LocalContext.current
+    val graph = AppGraph.get(context)
+    val store = graph.pushStore
+    val allowed = graph.popup.allowed()
+    Text(
+        "A card at the top of the screen, over whatever app is open, shows who sent a message " +
+            "and what it says, so there is nothing to tap to read it.",
+        color = Palette.Dim, style = MaterialTheme.typography.bodySmall,
+    )
+    Row(Modifier.padding(top = 6.dp)) {
+        listOf(
+            PushStore.PopupMode.OFF to "Off",
+            PushStore.PopupMode.IMPORTANT to "Important",
+            PushStore.PopupMode.ALL to "All",
+        ).forEach { (mode, name) ->
+            FilterChip(
+                selected = store.popupMode == mode,
+                onClick = {
+                    store.popupMode = mode
+                    if (mode != PushStore.PopupMode.OFF && !allowed) askOverlay(context)
+                    refresh()
+                },
+                label = { Text(name) },
+                modifier = Modifier.padding(end = 8.dp),
+            )
+        }
+    }
+    Text(
+        when (store.popupMode) {
+            PushStore.PopupMode.OFF -> "No popups."
+            PushStore.PopupMode.IMPORTANT -> "Decisions and blockers pop up."
+            PushStore.PopupMode.ALL -> "Every message pops up."
+        },
+        color = Palette.Dim, style = MaterialTheme.typography.bodySmall,
+    )
+    if (store.popupMode != PushStore.PopupMode.OFF && !allowed) {
+        Text("Android needs your permission to show it over other apps.",
+            color = Palette.Amber, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 6.dp))
+        TextButton(onClick = { askOverlay(context) }) { Text("Allow display over other apps", color = Palette.Green) }
+    }
+    if (store.popupMode != PushStore.PopupMode.OFF) {
+        var seconds by remember { mutableFloatStateOf(store.popupSeconds.toFloat()) }
+        Text("Stays ${seconds.toInt()} seconds; decisions and blockers twice as long. Swipe it away sooner.",
+            color = Palette.Dim, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 6.dp))
+        Slider(value = seconds, onValueChange = { seconds = it }, valueRange = 3f..20f, steps = 16,
+            onValueChangeFinished = { store.popupSeconds = seconds.toInt() })
+        TextButton(onClick = {
+            graph.popup.show(PushMessage(level = "decision", from = "[sample] popup",
+                title = "This is how a message looks over your apps.",
+                body = "Tap opens the session. Swipe sideways to dismiss."))
+        }, enabled = allowed) { Text("Show a sample", color = if (allowed) Palette.Green else Palette.Dim) }
+    }
+}
+
+private fun askOverlay(context: Context) {
+    open(context, Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:${context.packageName}")))
 }

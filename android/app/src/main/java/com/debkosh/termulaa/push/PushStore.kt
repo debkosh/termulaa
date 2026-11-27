@@ -57,6 +57,18 @@ class PushStore(private val s: SecretStore) {
         set(v) = s.put(K_VOLUME, v.toString())
 
     /** Pause music for the line instead of lowering it. */
+    /** What shows on screen over other apps when it arrives. */
+    enum class PopupMode { OFF, IMPORTANT, ALL }
+
+    var popupMode: PopupMode
+        get() = s.get(K_POPUP)?.let { runCatching { PopupMode.valueOf(it) }.getOrNull() } ?: PopupMode.OFF
+        set(v) = s.put(K_POPUP, v.name)
+
+    /** Seconds a popup stays; decisions and blockers stay twice as long. */
+    var popupSeconds: Int
+        get() = s.get(K_POPUP_SECONDS)?.toIntOrNull() ?: 6
+        set(v) = s.put(K_POPUP_SECONDS, v.toString())
+
     /** Speak through the phone's own speaker when no earphones are in. */
     var speakOnSpeaker: Boolean
         get() = s.get(K_SPEAKER) == "1"
@@ -150,6 +162,8 @@ class PushStore(private val s: SecretStore) {
         private const val K_VOLUME = "speech_volume"
         private const val K_PAUSE = "pause_music"
         private const val K_SPEAKER = "speak_on_speaker"
+        private const val K_POPUP = "popup_mode"
+        private const val K_POPUP_SECONDS = "popup_seconds"
         private const val K_GESTURE = "gesture_stop"
     }
 }

@@ -11,6 +11,10 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import androidx.core.app.NotificationCompat
+import androidx.core.app.Person
+import androidx.core.content.pm.ShortcutInfoCompat
+import androidx.core.content.pm.ShortcutManagerCompat
+import androidx.core.graphics.drawable.IconCompat
 import androidx.core.content.ContextCompat
 import com.debkosh.termulaa.MainActivity
 import com.debkosh.termulaa.R
@@ -63,17 +67,34 @@ class PushNotifier(
         return c.importance != NotificationManager.IMPORTANCE_NONE
     }
 
-    fun show(m: PushMessage, silent: Boolean = false) {
+    /**
+     * Posts [m] as a message from its sender, a session shown as a person
+     * with its own colour and initial, with that sender's [recent] messages
+     * above it (newest first, [m] among them), like a chat.
+     */
+    fun show(m: PushMessage, silent: Boolean = false, recent: List<HistoryEntry> = emptyList()) {
         val channel = channelFor(m.level ?: return) ?: return
         if (!canPost()) return
         val title = m.title ?: return
         val from = m.from?.takeIf { it.isNotBlank() } ?: "termulaa"
-        val text = if (m.body.isNullOrBlank()) title else "$title\n\n${m.body}"
+        val person = person(from)
+        val style = NotificationCompat.MessagingStyle(Person.Builder().setName("You").build())
+        val lines = recent.ifEmpty {
+            listOf(HistoryEntry(id = "", at = System.currentTimeMillis() / 1000, level = m.level ?: "info",
+                from = from, title = title, body = m.body ?: ""))
+        }
+        lines.take(RECENT).reversed().forEach { e ->
+            val text = if (e.body.isBlank()) e.title else "${e.title}\n${e.body}"
+            style.addMessage(text, e.at * 1000, person)
+        }
+        val shortcut = shortcutFor(from, person)
         val n = NotificationCompat.Builder(context, channel)
             .setSmallIcon(R.drawable.ic_stat_termulaa)
             .setContentTitle(from)
             .setContentText(title)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+            .setStyle(style)
+            .setShortcutId(shortcut)
+            .setGroup(GROUP)
             .setCategory(if (m.level == "info") Notification.CATEGORY_STATUS else Notification.CATEGORY_REMINDER)
             .setPriority(if (m.level == "info") NotificationCompat.PRIORITY_LOW else NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(tapIntent(m))
@@ -87,6 +108,35 @@ class PushNotifier(
     }
 
     fun cancel(key: String) = nm.cancel(tag(key), ID)
+
+    private fun person(sender: String): Person = Person.Builder()
+        .setName(sender)
+        .setKey(sender)
+        .setIcon(IconCompat.createWithBitmap(Avatar.bitmap(sender, 128)))
+        .build()
+
+    /**
+     * A long-lived shortcut per sender, which Android needs to show a
+     * notification as a conversation (its own section, the person's face).
+     */
+    private fun shortcutFor(sender: String, person: Person): String {
+        val id = "session:" + sender.hashCode()
+        try {
+            ShortcutManagerCompat.pushDynamicShortcut(
+                context,
+                ShortcutInfoCompat.Builder(context, id)
+                    .setShortLabel(sender.take(24))
+                    .setLongLabel(sender)
+                    .setLongLived(true)
+                    .setPerson(person)
+                    .setIcon(IconCompat.createWithBitmap(Avatar.bitmap(sender, 128)))
+                    .setIntent(Intent(context, MainActivity::class.java).setAction(Intent.ACTION_VIEW))
+                    .build(),
+            )
+        } catch (_: Exception) {
+        }
+        return id
+    }
 
     fun listening(text: String): Notification {
         val open = PendingIntent.getActivity(
@@ -154,6 +204,9 @@ class PushNotifier(
         const val CHANNEL_BLOCKER = "push_blocker"
         const val CHANNEL_LISTEN = "push_listen"
         private const val ID = 1
+        private const val GROUP = "sessions"
+        /** How many of a sender's messages a notification shows. */
+        const val RECENT = 5
         const val ID_LISTEN = 101
     }
 }

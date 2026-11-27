@@ -102,4 +102,7 @@ dependencies {
     // On a device or emulator with internet: the listening service against ntfy.sh.
     androidTestImplementation("androidx.test:runner:1.6.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    // The screen tour (ScreensTour): renders each screen and saves a screenshot.
+    androidTestImplementation(composeBom)
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
 }

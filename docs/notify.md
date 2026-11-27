@@ -185,6 +185,20 @@ termulaa notify setup "<endpoint> <age1…>"
   has to be turned. Off in Settings, "Shake or turn face down to stop".
 - **On the speaker** (0.7.9, off by default): "Speak on the phone speaker too"
   speaks when no earphones are in. Do Not Disturb and calls still keep it quiet.
+- **Each session is a person** (0.8.0). The main page's Notifications tab
+  lists one row per sender (the session's name, split into name and
+  "[project]"), with a coloured initial, its newest message and an unread
+  count; a row opens that session's messages as a chat, with Open session.
+  Android's notifications are conversation notifications: one per session,
+  showing its last five standing messages, with the same face (a long-lived
+  shortcut per sender puts them in the Conversations section). A message the
+  session takes back is marked answered.
+- **On screen** (0.8.0, off by default): a card at the top of the screen over
+  any app, with who sent it and the sentence, so nothing needs a tap to read.
+  Off / Important / All, like the voice; it stays 3 to 20 seconds (6 by
+  default, twice that for decisions and blockers); one card per sender, at
+  most three; tap opens the session, a sideways swipe dismisses. Needs
+  Android's "Display over other apps"; only while the screen is on.
 - **Speech engine:** Android's own TextToSpeech, which on his phone is Google's
   speech engine with on-device voices (no network needed for those).
 - **Missed messages:** reconnect with `since=<last id>`, plus the poll worker.
