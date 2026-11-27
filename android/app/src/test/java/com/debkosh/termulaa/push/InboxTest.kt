@@ -154,4 +154,18 @@ class InboxTest {
         s.setUp()
         assertEquals(before, s.setupLine)
     }
+
+    @Test fun aNewAddressKeepsTheKeys() {
+        val s = PushStore(InMemorySecretStore())
+        s.setUp()
+        s.lastId = "fromNtfySh"
+        val rcpt = s.recipient
+        assertEquals(null, s.useAddress("http://memd.example.com/notify/abcdefghijklmnopqrstuvwx"))
+        assertEquals(null, s.useAddress("https://memd.example.com/short"))
+        assertEquals(null, s.useAddress("https://memd.example.com/notify/abcdefghijk lmnopqrstuvwx"))
+        val url = " https://memd.example.com/notify/abcdefghijklmnopqrstuvwx/ "
+        assertEquals("https://memd.example.com/notify/abcdefghijklmnopqrstuvwx", s.useAddress(url))
+        assertEquals("https://memd.example.com/notify/abcdefghijklmnopqrstuvwx $rcpt", s.setupLine)
+        assertEquals(null, s.lastId)
+    }
 }

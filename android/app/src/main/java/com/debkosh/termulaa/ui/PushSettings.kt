@@ -25,6 +25,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -115,6 +116,8 @@ private fun PushSettingsBody(refresh: () -> Unit, askNotifications: () -> Unit) 
         }
         refresh()
     }
+
+    ServerAddress(store.endpoint!!, refresh)
 
     val command = "termulaa notify setup \"${store.setupLine}\""
     Text("On each computer, run once:", color = Palette.Text, style = MaterialTheme.typography.bodyMedium,
@@ -292,5 +295,55 @@ private suspend fun sendTest(endpoint: String, publicKey: String): String = with
         }
     } catch (e: Exception) {
         "Could not send: ${e.message}"
+    }
+}
+
+/**
+ * Where the phone listens: shown by host, and changed by pasting a memd
+ * notification channel's address (or another ntfy topic). The keys stay, so
+ * each computer then only needs the new setup line.
+ */
+@Composable
+private fun ServerAddress(endpoint: String, refresh: () -> Unit) {
+    val context = LocalContext.current
+    val store = AppGraph.get(context).pushStore
+    var editing by remember { mutableStateOf(false) }
+    var text by remember { mutableStateOf("") }
+    var error by remember { mutableStateOf<String?>(null) }
+    val host = endpoint.removePrefix("https://").substringBefore('/')
+
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
+        Column(Modifier.weight(1f)) {
+            Text("Server", color = Palette.Text, style = MaterialTheme.typography.bodyMedium)
+            Text(host, color = Palette.Dim, style = MaterialTheme.typography.bodySmall)
+        }
+        if (!editing) TextButton(onClick = { editing = true; text = ""; error = null }) {
+            Text("Change", color = Palette.Green)
+        }
+    }
+    if (!editing) return
+    OutlinedTextField(
+        value = text, onValueChange = { text = it; error = null }, singleLine = true,
+        label = { Text("Channel address") },
+        placeholder = { Text("https://memd.example.com/notify/…") },
+        modifier = Modifier.fillMaxWidth(),
+    )
+    Text(
+        "Paste a notification channel's address from memd's dashboard. Each computer then needs " +
+            "the setup command below run again.",
+        color = error?.let { Palette.Amber } ?: Palette.Dim, style = MaterialTheme.typography.bodySmall,
+    )
+    error?.let { Text(it, color = Palette.Amber, style = MaterialTheme.typography.bodySmall) }
+    Row {
+        TextButton(onClick = {
+            if (store.useAddress(text) == null) {
+                error = "That is not an https address with a channel in it."
+            } else {
+                editing = false
+                PushService.reconnect(context)
+                refresh()
+            }
+        }) { Text("Use it", color = Palette.Green) }
+        TextButton(onClick = { editing = false }) { Text("Cancel", color = Palette.Dim) }
     }
 }

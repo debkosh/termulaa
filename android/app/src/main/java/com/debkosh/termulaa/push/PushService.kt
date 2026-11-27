@@ -83,6 +83,14 @@ class PushService : Service() {
             stopSelf()
             return START_NOT_STICKY
         }
+        if (intent?.action == ACTION_RECONNECT) {
+            // The address changed: drop the old connection, open the new one.
+            synchronized(this) {
+                generation++
+                ws?.close(1000, null)
+                ws = null
+            }
+        }
         watchNetwork()
         connect()
         return START_STICKY
@@ -192,6 +200,7 @@ class PushService : Service() {
     companion object {
         private const val TAG = "termulaa.push"
         private const val ACTION_STOP = "com.debkosh.termulaa.push.STOP"
+        private const val ACTION_RECONNECT = "com.debkosh.termulaa.push.RECONNECT"
         private const val ALARM_TAG = "termulaa:push-reconnect"
         private val RETRY_SECONDS = listOf(5, 10, 15, 20, 30, 45, 60, 120)
 
@@ -210,6 +219,17 @@ class PushService : Service() {
                 ContextCompat.startForegroundService(context, Intent(context, PushService::class.java))
             } catch (e: Exception) {
                 Log.w(TAG, "cannot start: ${e.message}")
+            }
+        }
+
+        /** Connects again, to the address now in the store. */
+        fun reconnect(context: Context) {
+            try {
+                ContextCompat.startForegroundService(
+                    context, Intent(context, PushService::class.java).setAction(ACTION_RECONNECT),
+                )
+            } catch (e: Exception) {
+                Log.w(TAG, "cannot reconnect: ${e.message}")
             }
         }
 

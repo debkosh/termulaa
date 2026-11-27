@@ -19,6 +19,15 @@ termulaa app ──WebSocket ntfy.sh/<topic>/ws?since=<last id>──┘  decryp
 termulaa's app subscribes to ntfy.sh itself, as an ntfy client of one topic.
 No ntfy app, no UnifiedPush, no hub, no coordinator process.
 
+**Or a memd notification channel** (since 0.7.7). ntfy.sh allows 250
+messages a day per sending IP without an account, and this Mac used them all
+on 2026-11-27 (a 429, "daily message quota reached", until the day rolled
+over). memd now serves the same protocol at `https://<memd>/notify/<token>`
+with no quota (memd `docs/server.md`, "Notification Channels"): make a
+channel on memd's dashboard, Notifications; paste its address in the app,
+Settings > Session notifications > Server > Change; then run the app's new
+setup line on each computer. The keys stay; only the address changes.
+
 ## How ntfy works (read from its source, 2026-11-26)
 
 ntfy-android at `63fc4c2` (Apache 2.0): 60 Kotlin files, about 15,700 lines.
@@ -177,8 +186,6 @@ termulaa notify setup "<endpoint> <age1…>"
   send from the notification, delivered into the session. Needs a return path
   (phone → a second topic, sealed to a key on the computer → a listener there
   that types into the session's pane).
-- memd serving the ntfy protocol instead of ntfy.sh: possible later; the app
-  would only change its base URL.
 
 ## Updates
 

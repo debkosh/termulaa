@@ -94,6 +94,22 @@ class PushStore(private val s: SecretStore) {
     }
 
     /**
+     * Listens on [address] from now on: a memd notification channel, or any
+     * ntfy topic. The keys stay, so each computer only needs the new setup
+     * line. Null when it is not an https address with a long path.
+     */
+    @Synchronized
+    fun useAddress(address: String): String? {
+        val url = address.trim().trimEnd('/')
+        val path = url.removePrefix("https://").substringAfter('/', "")
+        if (!url.startsWith("https://") || path.length < 16 || url.any { it.isWhitespace() }) return null
+        s.put(K_ENDPOINT, url)
+        // An id from the old server means nothing to the new one.
+        s.put(K_LAST_ID, null)
+        return url
+    }
+
+    /**
      * True the first time an id is seen. The stream and the poll worker can
      * both deliver one message; the last [RECENT] ids decide.
      */
