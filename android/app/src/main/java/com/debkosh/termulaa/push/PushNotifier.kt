@@ -100,7 +100,7 @@ class PushNotifier(
             .setContentIntent(tapIntent(m))
             .setAutoCancel(true)
             .setSilent(silent)
-            .addAction(0, "Stop voice", action(PushActionReceiver.STOP))
+            .addAction(0, "Speak this", speakIntent(m.key ?: from, "$from: $title"))
             .setWhen(System.currentTimeMillis())
             .setShowWhen(true)
             .build()
@@ -169,6 +169,14 @@ class PushNotifier(
     private fun action(name: String): PendingIntent = PendingIntent.getBroadcast(
         context, name.hashCode(),
         Intent(context, PushActionReceiver::class.java).setAction(name),
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+    )
+
+    /** "Speak this": says the message now, earphones or not. One per sender. */
+    private fun speakIntent(key: String, text: String): PendingIntent = PendingIntent.getBroadcast(
+        context, ("speak:$key").hashCode(),
+        Intent(context, PushActionReceiver::class.java).setAction(PushActionReceiver.SPEAK)
+            .putExtra(PushActionReceiver.EXTRA_KEY, key).putExtra(PushActionReceiver.EXTRA_TEXT, text),
         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
     )
 

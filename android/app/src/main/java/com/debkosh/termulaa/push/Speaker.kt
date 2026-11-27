@@ -30,7 +30,7 @@ class Speaker(private val context: Context, private val store: PushStore) {
     // Shake or face down silences the voice, like silencing a ringing phone.
     private val gesture = StopGesture(context) { stop() }
 
-    private class Queued(val key: String?, val text: String, val spoken: () -> Unit)
+    private class Queued(val key: String?, val text: String, val spoken: () -> Unit, val asked: Boolean = false)
 
     /** Why it would stay quiet right now, or null when it may speak. */
     fun quietReason(): String? = when {
@@ -64,7 +64,7 @@ class Speaker(private val context: Context, private val store: PushStore) {
     /** Says [text] now, ahead of anything waiting: the settings sample. */
     fun say(text: String) {
         stop()
-        synchronized(this) { waiting.addFirst(Queued(null, text) {}) }
+        synchronized(this) { waiting.addFirst(Queued(null, text, {})) }
         next()
     }
 
@@ -72,11 +72,12 @@ class Speaker(private val context: Context, private val store: PushStore) {
      * Says [text] after the lines before it. A line still waiting under the
      * same [key] is replaced, so an updated message is said once. [spoken]
      * runs only when the whole line was said, not when it was stopped, failed
-     * or skipped because earphones went out meanwhile.
+     * or skipped because earphones went out meanwhile. An [asked] line (he
+     * pressed Speak this) plays on whatever output is on, like the sample.
      */
-    fun queue(text: String, key: String?, spoken: () -> Unit = {}) {
+    fun queue(text: String, key: String?, asked: Boolean = false, spoken: () -> Unit = {}) {
         synchronized(this) {
-            val item = Queued(key, text, spoken)
+            val item = Queued(key, text, spoken, asked)
             val at = if (key == null) -1 else waiting.indexOfFirst { it.key == key }
             if (at >= 0) waiting[at] = item else waiting.addLast(item)
         }
@@ -100,7 +101,7 @@ class Speaker(private val context: Context, private val store: PushStore) {
                         return@post
                     }
                     // A notification waits its turn; the rules are checked again.
-                    if (q.key != null && quietReason() != null) continue
+                    if (q.key != null && !q.asked && quietReason() != null) continue
                     current = Line(speakable(q.text), q.spoken)
                     if (store.gestureStop) gesture.start()
                     return@post

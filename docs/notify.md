@@ -162,7 +162,10 @@ termulaa notify setup "<endpoint> <age1…>"
     speaker never talks;
   - Do Not Disturb is off, no call is in progress, the channel isn't muted.
   It ducks music, says "<from>: <title>", and restores.
-- **Buttons:** every notification carries "Stop voice". The listening
+- **Buttons:** every session's notification carries "Speak this" (0.8.1;
+  it was "Stop voice", which shake, face down and None now cover): it says
+  the message now, on earphones or the speaker, and removes the notification
+  once heard. The listening
   notification carries All / Important / None (the current one ticked):
   speak everything, only decisions and blockers, or nothing. They set the
   three speak switches in Settings; any other mix shows as "as set in
@@ -177,7 +180,7 @@ termulaa notify setup "<endpoint> <age1…>"
 - **One after another:** a burst of messages is spoken in turn, never cut off
   by the next (before 0.7.8 each new one cut off the last). A message updated
   while it waits is said once, in its newest form; one taken back is dropped.
-  Stop voice and None silence the line and everything waiting. Earphones and
+  Shake, face down and None silence the line and everything waiting. Earphones and
   Do Not Disturb are checked again when each line's turn comes.
 - **Like a ringing phone** (0.7.9): shake the phone (three jolts within a
   second) or turn it face down to silence the voice and everything waiting.
