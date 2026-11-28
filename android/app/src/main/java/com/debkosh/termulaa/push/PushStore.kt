@@ -74,6 +74,11 @@ class PushStore(private val s: SecretStore) {
         get() = s.get(K_SPEAKER) == "1"
         set(v) = s.put(K_SPEAKER, if (v) "1" else null)
 
+    /** Read the details (the body) aloud after the title, not only show them. */
+    var speakBody: Boolean
+        get() = s.get(K_SPEAK_BODY) == "1"
+        set(v) = s.put(K_SPEAK_BODY, if (v) "1" else null)
+
     /** Shake the phone or turn it face down to stop the voice (on by default). */
     var gestureStop: Boolean
         get() = s.get(K_GESTURE) != "0"
@@ -165,5 +170,6 @@ class PushStore(private val s: SecretStore) {
         private const val K_POPUP = "popup_mode"
         private const val K_POPUP_SECONDS = "popup_seconds"
         private const val K_GESTURE = "gesture_stop"
+        private const val K_SPEAK_BODY = "speak_body"
     }
 }

@@ -100,7 +100,7 @@ class PushNotifier(
             .setContentIntent(tapIntent(m))
             .setAutoCancel(true)
             .setSilent(silent)
-            .addAction(0, "Speak this", speakIntent(m.key ?: from, "$from: $title"))
+            .addAction(0, "Speak this", speakIntent(m.key ?: from, Speaker.line(from, title, m.body, withBody = true)))
             .setWhen(System.currentTimeMillis())
             .setShowWhen(true)
             .build()

@@ -232,6 +232,9 @@ private fun VoiceSettings(refresh: () -> Unit) {
         style = MaterialTheme.typography.bodySmall)
     Slider(value = volume, onValueChange = { volume = it }, valueRange = 0.1f..1f,
         onValueChangeFinished = { store.speechVolume = volume })
+    ToggleRow("Read the details too", "The whole message, not just the title. Shake to stop", store.speakBody) {
+        store.speakBody = it; refresh()
+    }
     ToggleRow("Speak on the phone speaker too", "When no earphones are in. Never in Do Not Disturb or a call",
         store.speakOnSpeaker) { store.speakOnSpeaker = it; refresh() }
     ToggleRow("Shake or turn face down to stop", "Silences the voice, like a ringing phone", store.gestureStop) {

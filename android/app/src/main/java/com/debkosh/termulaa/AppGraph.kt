@@ -129,7 +129,7 @@ class AppGraph private constructor(private val context: Context) {
             speak = { m ->
                 val key = m.key ?: m.from ?: "termulaa"
                 // Heard in full: the notification has done its job.
-                speaker.queue("${m.from ?: "termulaa"}: ${m.title}", key) { pushNotifier.cancel(key) }
+                speaker.queue(Speaker.line(m.from ?: "termulaa", m.title ?: "", m.body, pushStore.speakBody), key) { pushNotifier.cancel(key) }
             },
             canSpeak = { m ->
                 val channel = pushNotifier.channelFor(m.level ?: "")

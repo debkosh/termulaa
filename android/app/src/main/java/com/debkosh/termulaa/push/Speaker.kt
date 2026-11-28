@@ -177,6 +177,12 @@ class Speaker(private val context: Context, private val store: PushStore) {
             .replace(Regex("\\s+"), " ")
             .trim()
 
+        /** The line read aloud for a message: who, what, and the details when [withBody]. */
+        fun line(from: String, title: String, body: String?, withBody: Boolean): String {
+            val details = body?.takeIf { withBody && it.isNotBlank() }?.let { speakable(it) }
+            return if (details.isNullOrEmpty()) "$from: $title" else "$from: $title. $details"
+        }
+
         const val SAMPLE = "project-b release: ready to merge 0.9, needs your yes."
     }
 }
