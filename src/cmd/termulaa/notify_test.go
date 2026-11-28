@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -62,7 +63,7 @@ func TestNotifySendsWhatTheAppCanOpen(t *testing.T) {
 	}
 
 	long := strings.Repeat("x", notifyTitleMax+1)
-	if code := runClient([]string{"notify", "decision", long}, &out, &errb); code != exitUsage || !strings.Contains(errb.String(), "limit is 80") {
+	if code := runClient([]string{"notify", "decision", long}, &out, &errb); code != exitUsage || !strings.Contains(errb.String(), fmt.Sprintf("limit is %d", notifyTitleMax)) {
 		t.Fatalf("an over-long title: exit %d, %q", code, errb.String())
 	}
 	title := strings.Repeat("é", notifyTitleMax-4) + " yes?"

@@ -62,7 +62,7 @@ with earphones in, speaks "<from>: <title>".
   decision  waiting on you
   blocker   stopped, nothing else to do
 
-The title is one line of at most 80 characters, written to be heard; a
+The title is one line of at most 200 characters, written to be heard; a
 longer one is refused (exit 2), never cut, since it is spoken whole. -from
 defaults to the tmux window name (else the host name); -key defaults to
 -from, and a newer notification with the same key replaces the older one.

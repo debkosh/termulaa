@@ -41,7 +41,7 @@ type notifyMessage struct {
 // The limits keep the base64 ciphertext well under ntfy's 4096-byte message
 // size, past which ntfy turns a message into an attachment.
 const (
-	notifyTitleMax = 80   // characters
+	notifyTitleMax = 200  // characters
 	notifyBodyMax  = 1500 // bytes of UTF-8
 )
 

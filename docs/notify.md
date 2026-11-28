@@ -99,9 +99,10 @@ Plain JSON, age-encrypted, then base64, posted as the body (well under ntfy's
 
 - `level`: `info` (finished), `decision` (waiting on him), `blocker` (stopped,
   nothing else to do).
-- `title`: one line, 80 characters at most, written to be heard. It is the
+- `title`: one line, 200 characters at most, written to be heard. It is the
   spoken line.
-- `body`, `link`: optional. `link` is the session's Remote Control URL; a tap
+- `body`, `link`: optional. The body is shown; it is read aloud after the
+  title only when "Read the details too" is on, and always by "Speak this". `link` is the session's Remote Control URL; a tap
   opens the Claude app on it.
 - `key`: defaults to `from`. A newer message with the same key replaces the
   old notification (Android notification tag).
